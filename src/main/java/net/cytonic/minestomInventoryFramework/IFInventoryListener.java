@@ -10,6 +10,7 @@ import me.devnatan.inventoryframework.context.IFContext;
 import me.devnatan.inventoryframework.context.IFRenderContext;
 import me.devnatan.inventoryframework.context.IFSlotClickContext;
 import me.devnatan.inventoryframework.pipeline.StandardPipelinePhases;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.EventFilter;
 import net.minestom.server.event.EventNode;
@@ -27,14 +28,13 @@ public final class IFInventoryListener {
     @NotNull
     private final ViewFrame viewFrame;
 
-    public IFInventoryListener(@NotNull ViewFrame viewFrame, EventNode<@NotNull EntityEvent> handler) {
+    public IFInventoryListener(@NotNull ViewFrame viewFrame) {
         Check.notNull(viewFrame, "viewFrame");
-        Check.notNull(handler, "handler");
         this.viewFrame = viewFrame;
         IFDebug.debug("Registering IF listener");
         EventNode<@NotNull EntityEvent> node = EventNode.type("IF", EventFilter.ENTITY, (event, entity) -> entity instanceof Player && viewFrame.getViewer((Player) entity) != null)
                 .setPriority(10).addListener(InventoryPreClickEvent.class, this::onInventoryClick).addListener(InventoryCloseEvent.class, this::onInventoryClose);
-        handler.addChild(node);
+        MinecraftServer.getGlobalEventHandler().addChild(node);
         IFDebug.debug("IF listener registered");
     }
 

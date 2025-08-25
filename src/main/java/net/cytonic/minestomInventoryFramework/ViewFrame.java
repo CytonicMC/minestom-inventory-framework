@@ -23,14 +23,11 @@ import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 
 public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
-    @NotNull
-    private final EventNode<@NotNull EntityEvent> parentNode;
     private final FeatureInstaller<ViewFrame> featureInstaller;
     @NotNull
     private static final Logger LOGGER;
 
-    private ViewFrame(@NotNull EventNode<@NotNull EntityEvent> parentNode) {
-        this.parentNode = parentNode;
+    private ViewFrame() {
         this.featureInstaller = new DefaultFeatureInstaller<>(this);
     }
 
@@ -113,7 +110,7 @@ public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
         PlatformUtils.setFactory(new MinestomElementFactory());
         this.getPipeline().execute(IFViewFrame.FRAME_REGISTERED, this);
         this.initializeViews();
-        new IFInventoryListener(this, this.parentNode);
+        new IFInventoryListener(this);
         return this;
     }
 
@@ -176,9 +173,8 @@ public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
         return this;
     }
 
-    public static ViewFrame create(@NotNull EventNode<@NotNull EntityEvent> parentNode) {
-        Check.notNull(parentNode, "parentNode");
-        return new ViewFrame(parentNode);
+    public static ViewFrame create() {
+        return new ViewFrame();
     }
 
     static {

@@ -2,7 +2,6 @@ plugins {
     `java-library`
     `maven-publish`
     id("java")
-    id("com.gradleup.shadow") version "9.0.2"
 }
 
 group = "net.cytonic"
@@ -11,7 +10,6 @@ version = "1.0"
 repositories {
     mavenCentral()
     maven("https://repo.foxikle.dev/cytonic")
-    mavenLocal()
 }
 
 dependencies {
