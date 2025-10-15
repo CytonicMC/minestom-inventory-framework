@@ -1,0 +1,9 @@
+metadata.format.version = "1.1"
+
+[versions]
+minestom = "2025.10.05-1.21.8"
+platform = "3.5.4"
+
+[libraries]
+minestom = { module = "net.minestom:minestom", version.ref = "minestom" }
+platform = { module = "me.devnatan:inventory-framework-platform", version.ref = "platform" }

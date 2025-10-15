@@ -12,6 +12,7 @@ import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.*;
 import java.util.function.UnaryOperator;
@@ -113,7 +114,7 @@ public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
         if (this.isRegistered()) throw new IllegalStateException("This view frame is already registered");
         this.setRegistered(true);
         PlatformUtils.setFactory(new MinestomElementFactory());
-        this.getPipeline().execute(IFViewFrame.FRAME_REGISTERED, this);
+        this.getPipeline().execute(FRAME_REGISTERED, this);
         this.initializeViews();
         new IFInventoryListener(this);
         return this;
@@ -131,7 +132,16 @@ public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
             } catch (RuntimeException ignored) {
             }
         }
-        this.getPipeline().execute(IFViewFrame.FRAME_UNREGISTERED, this);
+        this.getPipeline().execute(FRAME_UNREGISTERED, this);
+    }
+
+    /**
+     * All registered views.
+     *
+     * @return A Map containing all registered views in this view frame.
+     */
+    public @NotNull @UnmodifiableView Map<UUID, View> getAllRegisteredViews() {
+        return Collections.unmodifiableMap(registeredViews);
     }
 
     private void initializeViews() {

@@ -1,6 +1,5 @@
 package me.devnatan.inventoryframework.component;
 
-
 import me.devnatan.inventoryframework.Ref;
 import me.devnatan.inventoryframework.ViewContainer;
 import me.devnatan.inventoryframework.VirtualView;
