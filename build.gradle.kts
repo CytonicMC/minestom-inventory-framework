@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.devnatan"
-version = "1.0"
+version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
