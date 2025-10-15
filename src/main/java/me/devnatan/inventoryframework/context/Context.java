@@ -1,6 +1,5 @@
-package net.cytonic.minestomInventoryFramework.context;
+package me.devnatan.inventoryframework.context;
 
-import me.devnatan.inventoryframework.context.IFConfinedContext;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 import org.jetbrains.annotations.ApiStatus.Experimental;

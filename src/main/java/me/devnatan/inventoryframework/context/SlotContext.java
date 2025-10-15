@@ -1,17 +1,10 @@
-package net.cytonic.minestomInventoryFramework.context;
+package me.devnatan.inventoryframework.context;
 
-import me.devnatan.inventoryframework.IFDebug;
-import me.devnatan.inventoryframework.ViewConfig;
-import me.devnatan.inventoryframework.ViewContainer;
-import me.devnatan.inventoryframework.Viewer;
+import me.devnatan.inventoryframework.*;
 import me.devnatan.inventoryframework.component.Component;
-import me.devnatan.inventoryframework.context.IFRenderContext;
-import me.devnatan.inventoryframework.context.IFSlotContext;
-import me.devnatan.inventoryframework.context.PlatformContext;
 import me.devnatan.inventoryframework.state.State;
 import me.devnatan.inventoryframework.state.StateValue;
 import me.devnatan.inventoryframework.state.StateWatcher;
-import net.cytonic.minestomInventoryFramework.View;
 import net.minestom.server.entity.Player;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.validate.Check;
@@ -24,9 +17,9 @@ import java.util.Map;
 import java.util.UUID;
 
 public abstract class SlotContext extends PlatformContext implements IFSlotContext, Context {
-    private int slot;
     @NotNull
     private final IFRenderContext parent;
+    private int slot;
 
     @Internal
     public SlotContext(int slot, @NotNull IFRenderContext parent) {

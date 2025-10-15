@@ -1,11 +1,9 @@
-package net.cytonic.minestomInventoryFramework.context;
+package me.devnatan.inventoryframework.context;
 
 
 import me.devnatan.inventoryframework.ViewContainer;
 import me.devnatan.inventoryframework.Viewer;
 import me.devnatan.inventoryframework.component.Component;
-import me.devnatan.inventoryframework.context.IFRenderContext;
-import me.devnatan.inventoryframework.context.IFSlotClickContext;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.inventory.PlayerInventory;
@@ -43,7 +41,7 @@ public final class SlotClickContext extends SlotContext implements IFSlotClickCo
     }
 
     @NotNull
-    public final InventoryPreClickEvent getClickOrigin() {
+    public InventoryPreClickEvent getClickOrigin() {
         return this.clickOrigin;
     }
 
@@ -62,7 +60,7 @@ public final class SlotClickContext extends SlotContext implements IFSlotClickCo
     }
 
     @NotNull
-    public final Click getClick() {
+    public Click getClick() {
         Click var10000 = this.clickOrigin.getClick();
         Check.notNull(var10000, "getClick(...)");
         return var10000;

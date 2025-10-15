@@ -1,6 +1,5 @@
-package net.cytonic.minestomInventoryFramework.internal;
+package me.devnatan.inventoryframework.internal;
 
-import me.devnatan.inventoryframework.internal.Job;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;

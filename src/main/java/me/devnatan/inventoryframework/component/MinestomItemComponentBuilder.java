@@ -1,20 +1,12 @@
-package net.cytonic.minestomInventoryFramework.component;
+package me.devnatan.inventoryframework.component;
 
 
 import me.devnatan.inventoryframework.Ref;
 import me.devnatan.inventoryframework.ViewContainer;
 import me.devnatan.inventoryframework.VirtualView;
-import me.devnatan.inventoryframework.component.*;
-import me.devnatan.inventoryframework.context.IFRenderContext;
-import me.devnatan.inventoryframework.context.IFSlotClickContext;
-import me.devnatan.inventoryframework.context.IFSlotContext;
-import me.devnatan.inventoryframework.context.IFSlotRenderContext;
+import me.devnatan.inventoryframework.context.*;
 import me.devnatan.inventoryframework.state.State;
 import me.devnatan.inventoryframework.utils.SlotConverter;
-import net.cytonic.minestomInventoryFramework.context.Context;
-import net.cytonic.minestomInventoryFramework.context.SlotClickContext;
-import net.cytonic.minestomInventoryFramework.context.SlotContext;
-import net.cytonic.minestomInventoryFramework.context.SlotRenderContext;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;

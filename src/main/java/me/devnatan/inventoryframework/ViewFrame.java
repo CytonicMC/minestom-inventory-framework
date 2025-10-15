@@ -1,17 +1,12 @@
-package net.cytonic.minestomInventoryFramework;
+package me.devnatan.inventoryframework;
 
-import me.devnatan.inventoryframework.IFDebug;
-import me.devnatan.inventoryframework.IFViewFrame;
-import me.devnatan.inventoryframework.Viewer;
 import me.devnatan.inventoryframework.context.EndlessContextInfo;
 import me.devnatan.inventoryframework.feature.DefaultFeatureInstaller;
 import me.devnatan.inventoryframework.feature.Feature;
 import me.devnatan.inventoryframework.feature.FeatureInstaller;
+import me.devnatan.inventoryframework.internal.MinestomElementFactory;
 import me.devnatan.inventoryframework.internal.PlatformUtils;
-import net.cytonic.minestomInventoryFramework.internal.MinestomElementFactory;
 import net.minestom.server.entity.Player;
-import net.minestom.server.event.EventNode;
-import net.minestom.server.event.trait.EntityEvent;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.ApiStatus.Experimental;
 import org.jetbrains.annotations.ApiStatus.Internal;
@@ -23,12 +18,22 @@ import java.util.function.UnaryOperator;
 import java.util.logging.Logger;
 
 public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
-    private final FeatureInstaller<ViewFrame> featureInstaller;
     @NotNull
     private static final Logger LOGGER;
 
+    static {
+        PlatformUtils.setFactory(new MinestomElementFactory());
+        LOGGER = Logger.getLogger("IF");
+    }
+
+    private final FeatureInstaller<ViewFrame> featureInstaller;
+
     private ViewFrame() {
         this.featureInstaller = new DefaultFeatureInstaller<>(this);
+    }
+
+    public static ViewFrame create() {
+        return new ViewFrame();
     }
 
     @NotNull
@@ -166,19 +171,9 @@ public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
         return this;
     }
 
-
     @NotNull
     public ViewFrame install(@NotNull Feature<?, ?, ViewFrame> feature) {
         this.install(feature, UnaryOperator.identity());
         return this;
-    }
-
-    public static ViewFrame create() {
-        return new ViewFrame();
-    }
-
-    static {
-        PlatformUtils.setFactory(new MinestomElementFactory());
-        LOGGER = Logger.getLogger("IF");
     }
 }

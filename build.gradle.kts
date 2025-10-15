@@ -4,17 +4,16 @@ plugins {
     id("java")
 }
 
-group = "net.cytonic"
+group = "me.devnatan"
 version = "1.0"
 
 repositories {
     mavenCentral()
-    maven("https://repo.foxikle.dev/cytonic")
 }
 
 dependencies {
-    compileOnly("net.minestom:minestom:2025.08.18-1.21.8")
-    api("me.devnatan:inventory-framework-platform:1.0-CYTONIC")
+    compileOnly("net.minestom:minestom:2025.10.05-1.21.8")
+    api("me.devnatan:inventory-framework-platform:3.5.4")
 }
 
 publishing {

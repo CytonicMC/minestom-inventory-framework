@@ -1,15 +1,8 @@
-package net.cytonic.minestomInventoryFramework;
+package me.devnatan.inventoryframework;
 
-import me.devnatan.inventoryframework.PlatformView;
-import me.devnatan.inventoryframework.VirtualView;
-import me.devnatan.inventoryframework.pipeline.Pipeline;
-import me.devnatan.inventoryframework.pipeline.StandardPipelinePhases;
-import net.cytonic.minestomInventoryFramework.component.MinestomItemComponentBuilder;
-import net.cytonic.minestomInventoryFramework.context.*;
-import net.cytonic.minestomInventoryFramework.pipeline.CancelledCloseInterceptor;
-import net.cytonic.minestomInventoryFramework.pipeline.GlobalClickInterceptor;
-import net.cytonic.minestomInventoryFramework.pipeline.ItemClickInterceptor;
-import net.cytonic.minestomInventoryFramework.pipeline.ItemCloseOnClickInterceptor;
+import me.devnatan.inventoryframework.component.MinestomItemComponentBuilder;
+import me.devnatan.inventoryframework.context.*;
+import me.devnatan.inventoryframework.pipeline.*;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.utils.validate.Check;

@@ -1,16 +1,12 @@
-package net.cytonic.minestomInventoryFramework.context;
+package me.devnatan.inventoryframework.context;
 
-import me.devnatan.inventoryframework.ViewConfig;
-import me.devnatan.inventoryframework.ViewContainer;
-import me.devnatan.inventoryframework.Viewer;
-import me.devnatan.inventoryframework.context.*;
+import me.devnatan.inventoryframework.*;
 import me.devnatan.inventoryframework.state.State;
 import me.devnatan.inventoryframework.state.StateValue;
 import me.devnatan.inventoryframework.state.StateWatcher;
-import net.cytonic.minestomInventoryFramework.MinestomViewer;
-import net.cytonic.minestomInventoryFramework.View;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
+import net.minestom.server.event.inventory.InventoryCloseEvent;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
@@ -28,15 +24,24 @@ public final class CloseContext extends PlatformConfinedContext implements IFClo
     private final Viewer subject;
     @NotNull
     private final Player player;
+    @NotNull
+    private final InventoryCloseEvent closeOrigin;
     private boolean cancelled;
 
     @Internal
-    public CloseContext(@NotNull Viewer subject, @NotNull IFRenderContext parent) {
+    public CloseContext(@NotNull Viewer subject, @NotNull IFRenderContext parent, @NotNull InventoryCloseEvent closeOrigin) {
         Check.notNull(subject, "subject");
         Check.notNull(parent, "parent");
+        Check.notNull(closeOrigin, "closeOrigin");
         this.parent = parent;
         this.subject = subject;
         this.player = ((MinestomViewer) subject).getPlayer();
+        this.closeOrigin = closeOrigin;
+    }
+
+    @Override
+    public Object getPlatformEvent() {
+        return closeOrigin;
     }
 
     @NotNull

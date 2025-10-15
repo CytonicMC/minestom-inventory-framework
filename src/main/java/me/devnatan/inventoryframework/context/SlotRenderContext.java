@@ -1,9 +1,7 @@
-package net.cytonic.minestomInventoryFramework.context;
+package me.devnatan.inventoryframework.context;
 
+import me.devnatan.inventoryframework.MinestomViewer;
 import me.devnatan.inventoryframework.Viewer;
-import me.devnatan.inventoryframework.context.IFRenderContext;
-import me.devnatan.inventoryframework.context.IFSlotRenderContext;
-import net.cytonic.minestomInventoryFramework.MinestomViewer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.validate.Check;

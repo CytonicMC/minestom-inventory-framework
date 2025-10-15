@@ -1,9 +1,5 @@
-package net.cytonic.minestomInventoryFramework;
+package me.devnatan.inventoryframework;
 
-import me.devnatan.inventoryframework.IFDebug;
-import me.devnatan.inventoryframework.ViewConfig;
-import me.devnatan.inventoryframework.ViewContainer;
-import me.devnatan.inventoryframework.Viewer;
 import me.devnatan.inventoryframework.component.Component;
 import me.devnatan.inventoryframework.context.IFCloseContext;
 import me.devnatan.inventoryframework.context.IFContext;
@@ -88,7 +84,7 @@ public final class IFInventoryListener {
         Viewer viewer = this.viewFrame.getViewer(player);
         if (viewer == null) return;
         IFRenderContext context = viewer.getActiveContext();
-        IFCloseContext closeContext = context.getRoot().getElementFactory().createCloseContext(viewer, context);
+        IFCloseContext closeContext = context.getRoot().getElementFactory().createCloseContext(viewer, context, event);
         context.getRoot().getPipeline().execute(StandardPipelinePhases.CLOSE, closeContext);
     }
 }

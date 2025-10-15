@@ -1,6 +1,5 @@
-package net.cytonic.minestomInventoryFramework;
+package me.devnatan.inventoryframework;
 
-import me.devnatan.inventoryframework.*;
 import me.devnatan.inventoryframework.context.IFRenderContext;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.AbstractInventory;
@@ -16,12 +15,12 @@ import java.util.Objects;
 public final class MinestomViewer implements Viewer {
     @NotNull
     private final Player player;
+    @NotNull
+    private final Deque<IFRenderContext> previousContexts;
     @Nullable
     private IFRenderContext activeContext;
     @Nullable
     private ViewContainer selfContainer;
-    @NotNull
-    private final Deque<IFRenderContext> previousContexts;
     private long lastInteractionInMillis;
     private boolean switching;
 

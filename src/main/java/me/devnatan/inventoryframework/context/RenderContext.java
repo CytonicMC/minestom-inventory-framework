@@ -1,13 +1,7 @@
-package net.cytonic.minestomInventoryFramework.context;
+package me.devnatan.inventoryframework.context;
 
-import me.devnatan.inventoryframework.ViewConfig;
-import me.devnatan.inventoryframework.ViewContainer;
-import me.devnatan.inventoryframework.Viewer;
-import me.devnatan.inventoryframework.context.PlatformRenderContext;
-import net.cytonic.minestomInventoryFramework.MinestomViewContainer;
-import net.cytonic.minestomInventoryFramework.MinestomViewer;
-import net.cytonic.minestomInventoryFramework.View;
-import net.cytonic.minestomInventoryFramework.component.MinestomItemComponentBuilder;
+import me.devnatan.inventoryframework.*;
+import me.devnatan.inventoryframework.component.MinestomItemComponentBuilder;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 import net.minestom.server.item.ItemStack;

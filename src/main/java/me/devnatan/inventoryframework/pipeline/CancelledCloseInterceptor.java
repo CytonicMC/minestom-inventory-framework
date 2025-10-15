@@ -1,9 +1,7 @@
-package net.cytonic.minestomInventoryFramework.pipeline;
+package me.devnatan.inventoryframework.pipeline;
 
 import me.devnatan.inventoryframework.VirtualView;
-import me.devnatan.inventoryframework.pipeline.PipelineContext;
-import me.devnatan.inventoryframework.pipeline.PipelineInterceptor;
-import net.cytonic.minestomInventoryFramework.context.CloseContext;
+import me.devnatan.inventoryframework.context.CloseContext;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
 

@@ -1,11 +1,7 @@
-package net.cytonic.minestomInventoryFramework.pipeline;
+package me.devnatan.inventoryframework.pipeline;
 
-import me.devnatan.inventoryframework.ViewConfig;
 import me.devnatan.inventoryframework.VirtualView;
-import me.devnatan.inventoryframework.pipeline.PipelineContext;
-import me.devnatan.inventoryframework.pipeline.PipelineInterceptor;
-import net.cytonic.minestomInventoryFramework.context.SlotClickContext;
-import net.minestom.server.event.inventory.InventoryClickEvent;
+import me.devnatan.inventoryframework.context.SlotClickContext;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;

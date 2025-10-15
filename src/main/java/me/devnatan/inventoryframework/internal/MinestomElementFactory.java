@@ -1,19 +1,14 @@
-package net.cytonic.minestomInventoryFramework.internal;
+package me.devnatan.inventoryframework.internal;
 
 import me.devnatan.inventoryframework.*;
 import me.devnatan.inventoryframework.component.ComponentBuilder;
+import me.devnatan.inventoryframework.component.MinestomItemComponentBuilder;
 import me.devnatan.inventoryframework.context.*;
-import me.devnatan.inventoryframework.internal.ElementFactory;
-import me.devnatan.inventoryframework.internal.Job;
 import me.devnatan.inventoryframework.logging.Logger;
 import me.devnatan.inventoryframework.logging.NoopLogger;
-import net.cytonic.minestomInventoryFramework.MinestomViewContainer;
-import net.cytonic.minestomInventoryFramework.MinestomViewer;
-import net.cytonic.minestomInventoryFramework.View;
-import net.cytonic.minestomInventoryFramework.component.MinestomItemComponentBuilder;
-import net.cytonic.minestomInventoryFramework.context.*;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
+import net.minestom.server.event.inventory.InventoryCloseEvent;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.InventoryType;
@@ -31,6 +26,43 @@ import java.util.stream.Collectors;
 public final class MinestomElementFactory extends ElementFactory {
     @NotNull
     private static final ViewType defaultType = ViewType.CHEST;
+
+    private static @NotNull InventoryType getInventoryType(ViewType finalType, int size) {
+        InventoryType type;
+        if (Objects.equals(finalType, ViewType.CHEST)) {
+            switch (size / finalType.getColumns()) {
+                case 1 -> type = InventoryType.CHEST_1_ROW;
+                case 2 -> type = InventoryType.CHEST_2_ROW;
+                case 3 -> type = InventoryType.CHEST_3_ROW;
+                case 4 -> type = InventoryType.CHEST_4_ROW;
+                case 5 -> type = InventoryType.CHEST_5_ROW;
+                default -> type = InventoryType.CHEST_6_ROW;
+            }
+        } else if (Objects.equals(finalType, ViewType.BEACON)) {
+            type = InventoryType.BEACON;
+        } else if (Objects.equals(finalType, ViewType.HOPPER)) {
+            type = InventoryType.HOPPER;
+        } else if (Objects.equals(finalType, ViewType.SMOKER)) {
+            type = InventoryType.SMOKER;
+        } else if (Objects.equals(finalType, ViewType.BLAST_FURNACE)) {
+            type = InventoryType.BLAST_FURNACE;
+        } else if (Objects.equals(finalType, ViewType.FURNACE)) {
+            type = InventoryType.FURNACE;
+        } else if (Objects.equals(finalType, ViewType.ANVIL)) {
+            type = InventoryType.ANVIL;
+        } else if (Objects.equals(finalType, ViewType.CRAFTING_TABLE)) {
+            type = InventoryType.CRAFTING;
+        } else if (Objects.equals(finalType, ViewType.DROPPER)) {
+            type = InventoryType.WINDOW_3X3;
+        } else if (Objects.equals(finalType, ViewType.BREWING_STAND)) {
+            type = InventoryType.BREWING_STAND;
+        } else if (Objects.equals(finalType, ViewType.SHULKER_BOX)) {
+            type = InventoryType.SHULKER_BOX;
+        } else {
+            throw new IllegalStateException("Unsupported type: " + finalType);
+        }
+        return type;
+    }
 
     @NotNull
     public RootView createUninitializedRoot() {
@@ -72,43 +104,6 @@ public final class MinestomElementFactory extends ElementFactory {
         }
         Inventory inventory = new Inventory(type, title);
         return new MinestomViewContainer(inventory, false, finalType, false);
-    }
-
-    private static @NotNull InventoryType getInventoryType(ViewType finalType, int size) {
-        InventoryType type;
-        if (Objects.equals(finalType, ViewType.CHEST)) {
-            switch (size / finalType.getColumns()) {
-                case 1 -> type = InventoryType.CHEST_1_ROW;
-                case 2 -> type = InventoryType.CHEST_2_ROW;
-                case 3 -> type = InventoryType.CHEST_3_ROW;
-                case 4 -> type = InventoryType.CHEST_4_ROW;
-                case 5 -> type = InventoryType.CHEST_5_ROW;
-                default -> type = InventoryType.CHEST_6_ROW;
-            }
-        } else if (Objects.equals(finalType, ViewType.BEACON)) {
-            type = InventoryType.BEACON;
-        } else if (Objects.equals(finalType, ViewType.HOPPER)) {
-            type = InventoryType.HOPPER;
-        } else if (Objects.equals(finalType, ViewType.SMOKER)) {
-            type = InventoryType.SMOKER;
-        } else if (Objects.equals(finalType, ViewType.BLAST_FURNACE)) {
-            type = InventoryType.BLAST_FURNACE;
-        } else if (Objects.equals(finalType, ViewType.FURNACE)) {
-            type = InventoryType.FURNACE;
-        } else if (Objects.equals(finalType, ViewType.ANVIL)) {
-            type = InventoryType.ANVIL;
-        } else if (Objects.equals(finalType, ViewType.CRAFTING_TABLE)) {
-            type = InventoryType.CRAFTING;
-        } else if (Objects.equals(finalType, ViewType.DROPPER)) {
-            type = InventoryType.WINDOW_3X3;
-        } else if (Objects.equals(finalType, ViewType.BREWING_STAND)) {
-            type = InventoryType.BREWING_STAND;
-        } else if (Objects.equals(finalType, ViewType.SHULKER_BOX)) {
-            type = InventoryType.SHULKER_BOX;
-        } else {
-            throw new IllegalStateException("Unsupported type: " + finalType);
-        }
-        return type;
     }
 
     @NotNull
@@ -153,10 +148,11 @@ public final class MinestomElementFactory extends ElementFactory {
     }
 
     @NotNull
-    public IFCloseContext createCloseContext(@NotNull Viewer viewer, @NotNull IFRenderContext parent) {
+    public IFCloseContext createCloseContext(@NotNull Viewer viewer, @NotNull IFRenderContext parent, @NotNull Object origin) {
         Check.notNull(viewer, "viewer");
         Check.notNull(parent, "parent");
-        return new CloseContext(viewer, parent);
+        Check.notNull(origin, "origin");
+        return new CloseContext(viewer, parent, (InventoryCloseEvent) origin);
     }
 
     @NotNull

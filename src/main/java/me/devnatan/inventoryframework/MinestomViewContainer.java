@@ -1,8 +1,5 @@
-package net.cytonic.minestomInventoryFramework;
+package me.devnatan.inventoryframework;
 
-import me.devnatan.inventoryframework.ViewContainer;
-import me.devnatan.inventoryframework.ViewType;
-import me.devnatan.inventoryframework.Viewer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.minestom.server.entity.Player;

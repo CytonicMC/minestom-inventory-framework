@@ -1,13 +1,6 @@
-package net.cytonic.minestomInventoryFramework.context;
+package me.devnatan.inventoryframework.context;
 
-import me.devnatan.inventoryframework.ViewConfig;
-import me.devnatan.inventoryframework.ViewConfigBuilder;
-import me.devnatan.inventoryframework.ViewContainer;
-import me.devnatan.inventoryframework.Viewer;
-import me.devnatan.inventoryframework.context.IFOpenContext;
-import me.devnatan.inventoryframework.context.PlatformConfinedContext;
-import net.cytonic.minestomInventoryFramework.MinestomViewer;
-import net.cytonic.minestomInventoryFramework.View;
+import me.devnatan.inventoryframework.*;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 import net.minestom.server.utils.validate.Check;
@@ -27,18 +20,18 @@ public final class OpenContext extends PlatformConfinedContext implements IFOpen
     private final Viewer subject;
     @NotNull
     private final Map<String, Viewer> viewers;
+    @NotNull
+    private final UUID id;
+    @NotNull
+    private final Player player;
     @Nullable
     private Object initialData;
     @Nullable
     private ViewContainer container;
-    @NotNull
-    private final UUID id;
     @Nullable
     private CompletableFuture<Void> waitTask;
     @Nullable
     private ViewConfigBuilder inheritedConfigBuilder;
-    @NotNull
-    private final Player player;
     private boolean cancelled;
 
     @Internal
