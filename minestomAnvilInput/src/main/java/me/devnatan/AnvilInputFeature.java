@@ -5,14 +5,13 @@ import me.devnatan.inventoryframework.context.*;
 import me.devnatan.inventoryframework.feature.Feature;
 import me.devnatan.inventoryframework.pipeline.PipelineInterceptor;
 import me.devnatan.inventoryframework.pipeline.StandardPipelinePhases;
-import me.devnatan.inventoryframework.state.State;
-import me.devnatan.inventoryframework.state.StateValue;
-import me.devnatan.inventoryframework.state.StateValueHost;
-import me.devnatan.inventoryframework.state.StateWatcher;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.minestom.server.component.DataComponents;
 import net.minestom.server.entity.Player;
+import net.minestom.server.event.EventFilter;
+import net.minestom.server.event.EventNode;
+import net.minestom.server.event.player.PlayerAnvilInputEvent;
 import net.minestom.server.inventory.Inventory;
 import net.minestom.server.inventory.type.AnvilInventory;
 import net.minestom.server.item.ItemStack;
@@ -106,20 +105,26 @@ public final class AnvilInputFeature implements Feature<AnvilInputConfig, Void, 
 
             final int resultSlot = context.getContainer().getType().getResultSlots()[0];
             if (context.getClickedSlot() != resultSlot) return;
-            IFDebug.debug("context clicked slot: %d", context.getClickedSlot());
 
-            final ItemStack resultItem = context.getItem();
-            IFDebug.debug("result item: %s", resultItem);
-            if (resultItem.material() == Material.AIR) return;
+            final MinestomViewContainer container = (MinestomViewContainer) context.getContainer();
 
-            final String text = PlainTextComponentSerializer.plainText().serialize(requireNonNull(resultItem.get(DataComponents.ITEM_NAME)));
-            final Inventory clickedInventory =
-                    (Inventory) requireNonNull(context.getClickOrigin().getInventory(), "Clicked inventory cannot be null");
-            ItemStack ingredientItem = requireNonNull(clickedInventory.getItemStack(INGREDIENT_SLOT));
+            ItemStack itemStack = container.inventory().getItemStack(resultSlot);
 
-            ingredientItem = ingredientItem.with(DataComponents.ITEM_NAME, Component.text(text));
+            if (itemStack.material() == Material.AIR) {
+                IFDebug.debug("No valid item found, aborting");
+                return;
+            }
+
+            Component itemName = itemStack.get(DataComponents.ITEM_NAME);
+            if (itemName == null) {
+                IFDebug.debug("Item has no name component");
+                return;
+            }
+
+            final String text = PlainTextComponentSerializer.plainText().serialize(itemName);
+            IFDebug.debug("Extracted text: '%s'", text);
+
             context.updateState(anvilInput, text);
-            clickedInventory.setItemStack(INGREDIENT_SLOT, ingredientItem);
 
             if (config.closeOnSelect) {
                 context.closeForPlayer();
@@ -137,41 +142,11 @@ public final class AnvilInputFeature implements Feature<AnvilInputConfig, Void, 
 
             // Forces internal state initialization
             context.getInternalStateValue(anvilInput);
-            IFDebug.debug("handle open");
-            IFDebug.debug("watching state %d", anvilInput.internalId());
-            context.watchState(anvilInput.internalId(), new StateWatcher() {
-                @Override
-                public void stateRegistered(@NotNull State<?> state, Object caller) {
-                    IFDebug.debug("State registered");
-                }
-
-                @Override
-                public void stateUnregistered(@NotNull State<?> state, Object caller) {
-                    IFDebug.debug("State unregistered");
-                }
-
-                @Override
-                public void stateValueGet(
-                        @NotNull State<?> state,
-                        @NotNull StateValueHost host,
-                        @NotNull StateValue internalValue,
-                        Object rawValue) {
-                    IFDebug.debug("State value get: %s", rawValue);
-                }
-
-                @Override
-                public void stateValueSet(
-                        @NotNull StateValueHost host,
-                        @NotNull StateValue value,
-                        Object rawOldValue,
-                        Object rawNewValue) {
-                    IFDebug.debug("State value set: %s -> %s", rawOldValue, rawNewValue);
-                    updatePhysicalResult((String) rawNewValue, ((IFRenderContext) host).getContainer());
-                }
-            });
 
             final String globalInitialInput = config.initialInput;
             final String scopedInitialInput = anvilInput.get(context);
+
+            context.getPlayer().eventNode().addChild(EventNode.type("anvil", EventFilter.PLAYER).addListener(PlayerAnvilInputEvent.class, event -> context.updateState(anvilInput, event.getInput())));
 
             final Inventory inventory = openInventory(
                     context.getPlayer(),
@@ -196,7 +171,7 @@ public final class AnvilInputFeature implements Feature<AnvilInputConfig, Void, 
             final ItemStack item = container.inventory().getItemStack(slot);
 
             if (item.material() == Material.AIR) return;
-
+            context.getPlayer().eventNode().removeChildren("anvil");
             final String input = PlainTextComponentSerializer.plainText().serialize(requireNonNull(item.get(DataComponents.ITEM_NAME)));
             context.updateState(anvilInput, input);
         });
@@ -212,9 +187,7 @@ public final class AnvilInputFeature implements Feature<AnvilInputConfig, Void, 
             }
             final AnvilInventory inventory = new AnvilInventory(component);
 
-            ItemStack item = ItemStack.builder(Material.PAPER)
-                    .set(DataComponents.DAMAGE, 0)
-                    .set(DataComponents.ITEM_NAME, Component.text(initialInput)).build();
+            ItemStack item = ItemStack.builder(Material.PAPER).set(DataComponents.ITEM_NAME, Component.text(initialInput)).build();
             inventory.setItemStack(0, item);
             player.openInventory(inventory);
 
