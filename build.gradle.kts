@@ -15,6 +15,13 @@ allprojects {
     }
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+}
+
 dependencies {
     implementation(project(":minestomInventoryFramework"))
     implementation(project(":minestomAnvilInput"))
@@ -25,7 +32,7 @@ subprojects {
         withSourcesJar()
         withJavadocJar()
 
-        toolchain.languageVersion = JavaLanguageVersion.of(21)
+        toolchain.languageVersion = JavaLanguageVersion.of(25)
     }
 
     publishing {
