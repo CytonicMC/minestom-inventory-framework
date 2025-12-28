@@ -1,9 +1,35 @@
 package me.devnatan.inventoryframework.internal;
 
-import me.devnatan.inventoryframework.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import me.devnatan.inventoryframework.MinestomViewContainer;
+import me.devnatan.inventoryframework.MinestomViewer;
+import me.devnatan.inventoryframework.RootView;
+import me.devnatan.inventoryframework.View;
+import me.devnatan.inventoryframework.ViewConfig;
+import me.devnatan.inventoryframework.ViewContainer;
+import me.devnatan.inventoryframework.ViewType;
+import me.devnatan.inventoryframework.Viewer;
+import me.devnatan.inventoryframework.VirtualView;
 import me.devnatan.inventoryframework.component.ComponentBuilder;
 import me.devnatan.inventoryframework.component.MinestomItemComponentBuilder;
-import me.devnatan.inventoryframework.context.*;
+import me.devnatan.inventoryframework.context.CloseContext;
+import me.devnatan.inventoryframework.context.Context;
+import me.devnatan.inventoryframework.context.IFCloseContext;
+import me.devnatan.inventoryframework.context.IFContext;
+import me.devnatan.inventoryframework.context.IFOpenContext;
+import me.devnatan.inventoryframework.context.IFRenderContext;
+import me.devnatan.inventoryframework.context.IFSlotClickContext;
+import me.devnatan.inventoryframework.context.IFSlotRenderContext;
+import me.devnatan.inventoryframework.context.OpenContext;
+import me.devnatan.inventoryframework.context.RenderContext;
+import me.devnatan.inventoryframework.context.SlotClickContext;
+import me.devnatan.inventoryframework.context.SlotRenderContext;
 import me.devnatan.inventoryframework.logging.Logger;
 import me.devnatan.inventoryframework.logging.NoopLogger;
 import net.kyori.adventure.text.Component;
@@ -16,14 +42,8 @@ import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 public final class MinestomElementFactory extends ElementFactory {
+
     @NotNull
     private static final ViewType defaultType = ViewType.CHEST;
 
@@ -83,22 +103,22 @@ public final class MinestomElementFactory extends ElementFactory {
         int size = finalType.normalize(config.getSize());
         if (size != 0 && !finalType.isExtendable()) {
             throw new IllegalArgumentException(
-                    String.format(
-                            "Only \"%s\" type can have a custom size," +
-                                    " \"%s\" always have a size of %d. Remove the parameter that specifies the size" +
-                                    " of the container on %s or just set the type explicitly.",
-                            ViewType.CHEST.getIdentifier(),
-                            finalType.getIdentifier(),
-                            finalType.getMaxSize(),
-                            context.getRoot().getClass().getName()
-                    )
+                String.format(
+                    "Only \"%s\" type can have a custom size," +
+                        " \"%s\" always have a size of %d. Remove the parameter that specifies the size" +
+                        " of the container on %s or just set the type explicitly.",
+                    ViewType.CHEST.getIdentifier(),
+                    finalType.getIdentifier(),
+                    finalType.getMaxSize(),
+                    context.getRoot().getClass().getName()
+                )
             );
         }
         InventoryType type = getInventoryType(finalType, size);
 
         Component title;
-        if (config.getTitle() instanceof Component) {
-            title = (Component) config.getTitle();
+        if (config.getTitle() instanceof Component component) {
+            title = component;
         } else {
             title = Component.empty();
         }
@@ -116,13 +136,17 @@ public final class MinestomElementFactory extends ElementFactory {
     }
 
     @Override
-    public IFOpenContext createOpenContext(@NotNull RootView root, Viewer subject, List<Viewer> viewers, Object initialData) {
-        return new OpenContext((View) root, subject, viewers.stream().collect(Collectors.toMap(Viewer::getId, Function.identity())), initialData);
+    public IFOpenContext createOpenContext(@NotNull RootView root, Viewer subject, List<Viewer> viewers,
+        Object initialData) {
+        return new OpenContext((View) root, subject,
+            viewers.stream().collect(Collectors.toMap(Viewer::getId, Function.identity())), initialData);
     }
 
 
     @NotNull
-    public IFRenderContext createRenderContext(@NotNull UUID id, @NotNull RootView root, @NotNull ViewConfig config, @Nullable ViewContainer container, @NotNull Map<String, Viewer> viewers, @NotNull Viewer subject, @Nullable Object initialData) {
+    public IFRenderContext createRenderContext(@NotNull UUID id, @NotNull RootView root, @NotNull ViewConfig config,
+        @Nullable ViewContainer container, @NotNull Map<String, Viewer> viewers, @NotNull Viewer subject,
+        @Nullable Object initialData) {
         Check.notNull(id, "id");
         Check.notNull(root, "root");
         Check.notNull(config, "config");
@@ -132,23 +156,29 @@ public final class MinestomElementFactory extends ElementFactory {
     }
 
     @NotNull
-    public IFSlotClickContext createSlotClickContext(int slotClicked, @NotNull Viewer whoClicked, @NotNull ViewContainer interactionContainer, @Nullable me.devnatan.inventoryframework.component.Component componentClicked, @NotNull Object origin, boolean combined) {
+    public IFSlotClickContext createSlotClickContext(int slotClicked, @NotNull Viewer whoClicked,
+        @NotNull ViewContainer interactionContainer,
+        @Nullable me.devnatan.inventoryframework.component.Component componentClicked, @NotNull Object origin,
+        boolean combined) {
         Check.notNull(whoClicked, "whoClicked");
         Check.notNull(interactionContainer, "interactionContainer");
         Check.notNull(origin, "origin");
         IFRenderContext activeContext = whoClicked.getActiveContext();
         Check.notNull(activeContext, "activeContext");
-        return new SlotClickContext(slotClicked, activeContext, whoClicked, interactionContainer, componentClicked, (InventoryPreClickEvent) origin, combined);
+        return new SlotClickContext(slotClicked, activeContext, whoClicked, interactionContainer, componentClicked,
+            (InventoryPreClickEvent) origin, combined);
     }
 
     @NotNull
-    public IFSlotRenderContext createSlotRenderContext(int slot, @NotNull IFRenderContext parent, @Nullable Viewer viewer) {
+    public IFSlotRenderContext createSlotRenderContext(int slot, @NotNull IFRenderContext parent,
+        @Nullable Viewer viewer) {
         Check.notNull(parent, "parent");
         return new SlotRenderContext(slot, parent, viewer);
     }
 
     @NotNull
-    public IFCloseContext createCloseContext(@NotNull Viewer viewer, @NotNull IFRenderContext parent, @NotNull Object origin) {
+    public IFCloseContext createCloseContext(@NotNull Viewer viewer, @NotNull IFRenderContext parent,
+        @NotNull Object origin) {
         Check.notNull(viewer, "viewer");
         Check.notNull(parent, "parent");
         Check.notNull(origin, "origin");

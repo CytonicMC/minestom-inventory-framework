@@ -1,7 +1,26 @@
 package me.devnatan;
 
-import me.devnatan.inventoryframework.*;
-import me.devnatan.inventoryframework.context.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.UnaryOperator;
+
+import me.devnatan.inventoryframework.IFDebug;
+import me.devnatan.inventoryframework.IFViewFrame;
+import me.devnatan.inventoryframework.MinestomViewContainer;
+import me.devnatan.inventoryframework.PlatformView;
+import me.devnatan.inventoryframework.View;
+import me.devnatan.inventoryframework.ViewConfig;
+import me.devnatan.inventoryframework.ViewContainer;
+import me.devnatan.inventoryframework.ViewFrame;
+import me.devnatan.inventoryframework.ViewType;
+import me.devnatan.inventoryframework.context.CloseContext;
+import me.devnatan.inventoryframework.context.IFCloseContext;
+import me.devnatan.inventoryframework.context.IFContext;
+import me.devnatan.inventoryframework.context.IFOpenContext;
+import me.devnatan.inventoryframework.context.IFSlotClickContext;
+import me.devnatan.inventoryframework.context.OpenContext;
+import me.devnatan.inventoryframework.context.SlotClickContext;
 import me.devnatan.inventoryframework.feature.Feature;
 import me.devnatan.inventoryframework.pipeline.PipelineInterceptor;
 import me.devnatan.inventoryframework.pipeline.StandardPipelinePhases;
@@ -17,11 +36,6 @@ import net.minestom.server.inventory.type.AnvilInventory;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.UnaryOperator;
 
 import static java.util.Objects.requireNonNull;
 import static me.devnatan.AnvilInput.defaultConfig;
@@ -79,8 +93,8 @@ public final class AnvilInputFeature implements Feature<AnvilInputConfig, Void, 
         if (context.getConfig().getType() != ViewType.ANVIL) return null;
 
         final Optional<ViewConfig.Modifier> optional = context.getConfig().getModifiers().stream()
-                .filter(modifier -> modifier instanceof AnvilInput)
-                .findFirst();
+            .filter(modifier -> modifier instanceof AnvilInput)
+            .findFirst();
 
         //noinspection OptionalIsPresent
         if (optional.isEmpty()) return null;
@@ -131,7 +145,6 @@ public final class AnvilInputFeature implements Feature<AnvilInputConfig, Void, 
             }
         });
     }
-
     private void handleOpen(PlatformView view) {
         view.getPipeline().intercept(StandardPipelinePhases.OPEN, (pipeline, subject) -> {
             if (!(subject instanceof IFOpenContext)) return;
@@ -140,22 +153,38 @@ public final class AnvilInputFeature implements Feature<AnvilInputConfig, Void, 
             final AnvilInput anvilInput = getAnvilInput(context);
             if (anvilInput == null) return;
 
-            // Forces internal state initialization
             context.getInternalStateValue(anvilInput);
 
             final String globalInitialInput = config.initialInput;
-            final String scopedInitialInput = anvilInput.get(context);
 
-            context.getPlayer().eventNode().addChild(EventNode.type("anvil", EventFilter.PLAYER).addListener(PlayerAnvilInputEvent.class, event -> context.updateState(anvilInput, event.getInput())));
-
-            final Inventory inventory = openInventory(
-                    context.getPlayer(),
-                    context.getConfig().getTitle(),
-                    scopedInitialInput.isEmpty() ? globalInitialInput : scopedInitialInput);
-            final ViewContainer container =
-                    new MinestomViewContainer(inventory, context.isShared(), ViewType.ANVIL, true);
-
+            final Inventory inventory = openInventory(context.getPlayer(), context.getConfig().getTitle(), globalInitialInput);
+            final ViewContainer container = new MinestomViewContainer(inventory, context.isShared(), ViewType.ANVIL, true);
             context.setContainer(container);
+
+            context.getPlayer().scheduler().scheduleNextTick(() -> {
+                String currentValue = anvilInput.get(context);
+
+                if (!currentValue.isEmpty()) {
+                    ItemStack.Builder item = ItemStack.builder(Material.PAPER)
+                        .set(DataComponents.ITEM_NAME, Component.text(currentValue));
+                    inventory.setItemStack(INGREDIENT_SLOT, item.build());
+                }
+
+                final String valueInAnvil = currentValue.isEmpty() ? globalInitialInput : currentValue;
+
+                context.getPlayer().eventNode().addChild(EventNode.type("anvil", EventFilter.PLAYER)
+                    .addListener(PlayerAnvilInputEvent.class, event -> {
+                        IFDebug.debug("Player anvil event received: '%s' (valueInAnvil: '%s')",
+                            event.getInput(), valueInAnvil);
+
+                        if (event.getInput().isEmpty() && !valueInAnvil.isEmpty()) {
+                            IFDebug.debug("Ignoring automatic empty event");
+                            return;
+                        }
+
+                        context.updateState(anvilInput, event.getInput());
+                    }));
+            });
         });
     }
 
@@ -172,7 +201,8 @@ public final class AnvilInputFeature implements Feature<AnvilInputConfig, Void, 
 
             if (item.material() == Material.AIR) return;
             context.getPlayer().eventNode().removeChildren("anvil");
-            final String input = PlainTextComponentSerializer.plainText().serialize(requireNonNull(item.get(DataComponents.ITEM_NAME)));
+            final String input = PlainTextComponentSerializer.plainText()
+                .serialize(requireNonNull(item.get(DataComponents.ITEM_NAME)));
             context.updateState(anvilInput, input);
         });
     }
@@ -187,7 +217,8 @@ public final class AnvilInputFeature implements Feature<AnvilInputConfig, Void, 
             }
             final AnvilInventory inventory = new AnvilInventory(component);
 
-            ItemStack item = ItemStack.builder(Material.PAPER).set(DataComponents.ITEM_NAME, Component.text(initialInput)).build();
+            ItemStack item = ItemStack.builder(Material.PAPER)
+                .set(DataComponents.ITEM_NAME, Component.text(initialInput)).build();
             inventory.setItemStack(0, item);
             player.openInventory(inventory);
 
