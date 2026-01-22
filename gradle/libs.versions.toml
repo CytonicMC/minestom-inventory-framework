@@ -1,7 +1,7 @@
 metadata.format.version = "1.1"
 
 [versions]
-minestom = "2025.10.31-1.21.10"
+minestom = "2025.12.20-1.21.11"
 platform = "3.5.5"
 
 [libraries]
