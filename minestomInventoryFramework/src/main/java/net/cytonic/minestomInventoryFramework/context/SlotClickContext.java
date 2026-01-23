@@ -1,6 +1,7 @@
 package net.cytonic.minestomInventoryFramework.context;
 
 
+import me.devnatan.inventoryframework.RootView;
 import me.devnatan.inventoryframework.ViewContainer;
 import me.devnatan.inventoryframework.Viewer;
 import me.devnatan.inventoryframework.component.Component;
@@ -150,12 +151,12 @@ public final class SlotClickContext extends SlotContext implements IFSlotClickCo
         this.getParent().closeForPlayer();
     }
 
-    public void openForPlayer(@NotNull Class other) {
+    public void openForPlayer(@NotNull Class<? extends RootView> other) {
         Check.notNull(other, "other");
         this.getParent().openForPlayer(other);
     }
 
-    public void openForPlayer(@NotNull Class other, @NotNull Object initialData) {
+    public void openForPlayer(@NotNull Class<? extends RootView> other, @NotNull Object initialData) {
         Check.notNull(other, "other");
         Check.notNull(initialData, "initialData");
         this.getParent().openForPlayer(other, initialData);

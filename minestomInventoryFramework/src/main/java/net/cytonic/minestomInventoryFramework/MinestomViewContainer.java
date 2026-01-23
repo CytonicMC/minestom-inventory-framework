@@ -28,8 +28,8 @@ public record MinestomViewContainer(@NotNull Inventory inventory, boolean isShar
     public String getTitle() {
         boolean diffTitle = inventory.getViewers().stream().map(Player::getOpenInventory)
             .filter(inv -> inv instanceof Inventory).map(inv -> (Inventory) inv)
-            .map(inv -> PlainTextComponentSerializer.plainText().serialize(inv.getTitle())).distinct()
-            .anyMatch(title -> true);
+            .map(inv -> PlainTextComponentSerializer.plainText().serialize(inv.getTitle())).distinct().findAny()
+            .isPresent();
         if (diffTitle && this.isShared) {
             throw new IllegalStateException("Cannot get unique title of shared inventory");
         }

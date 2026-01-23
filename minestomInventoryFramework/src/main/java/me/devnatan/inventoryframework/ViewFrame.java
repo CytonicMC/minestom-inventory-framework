@@ -159,7 +159,7 @@ public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
     }
 
     private void initializeViews() {
-        getRegisteredViews().forEach((key, view) -> {
+        getRegisteredViews().forEach((_, view) -> {
             try {
                 view.internalInitialization(this);
                 view.setInitialized(true);
@@ -197,7 +197,6 @@ public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
 
     @NotNull
     public ViewFrame install(@NotNull Feature<?, ?, ViewFrame> feature) {
-        this.install(feature, UnaryOperator.identity());
-        return this;
+        return install(feature, UnaryOperator.identity());
     }
 }

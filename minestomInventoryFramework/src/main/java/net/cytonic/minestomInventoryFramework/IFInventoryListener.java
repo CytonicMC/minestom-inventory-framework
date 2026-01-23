@@ -35,7 +35,7 @@ public final class IFInventoryListener {
         this.viewFrame = viewFrame;
         IFDebug.debug("Registering IF listener");
         EventNode<@NotNull EntityEvent> node = EventNode.type("IF", EventFilter.ENTITY,
-                (event, entity) -> entity instanceof Player && viewFrame.getViewer((Player) entity) != null)
+                (_, entity) -> entity instanceof Player && viewFrame.getViewer((Player) entity) != null)
             .setPriority(10).addListener(InventoryPreClickEvent.class, this::onInventoryClick)
             .addListener(InventoryCloseEvent.class, this::onInventoryClose);
         MinecraftServer.getGlobalEventHandler().addChild(node);
