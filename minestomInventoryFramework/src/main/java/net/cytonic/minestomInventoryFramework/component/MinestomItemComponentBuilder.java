@@ -149,8 +149,10 @@ public final class MinestomItemComponentBuilder extends DefaultComponentBuilder<
 
     @NotNull
     public Component create() {
+        final Function<? extends IFContext, String> componentKeyProvider =
+            keyFactory == null ? RANDOM_KEY_FACTORY : keyFactory;
         return new ItemComponent(
-            keyFactory,
+            componentKeyProvider,
             root,
             slot,
             item,
