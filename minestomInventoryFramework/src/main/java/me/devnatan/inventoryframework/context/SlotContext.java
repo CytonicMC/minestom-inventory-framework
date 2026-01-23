@@ -1,6 +1,14 @@
 package me.devnatan.inventoryframework.context;
 
-import me.devnatan.inventoryframework.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import me.devnatan.inventoryframework.IFDebug;
+import me.devnatan.inventoryframework.View;
+import me.devnatan.inventoryframework.ViewConfig;
+import me.devnatan.inventoryframework.ViewContainer;
+import me.devnatan.inventoryframework.Viewer;
 import me.devnatan.inventoryframework.component.Component;
 import me.devnatan.inventoryframework.state.State;
 import me.devnatan.inventoryframework.state.StateValue;
@@ -12,11 +20,10 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import net.cytonic.minestomInventoryFramework.context.Context;
 
 public abstract class SlotContext extends PlatformContext implements IFSlotContext, Context {
+
     @NotNull
     private final IFRenderContext parent;
     private int slot;
@@ -47,17 +54,17 @@ public abstract class SlotContext extends PlatformContext implements IFSlotConte
     }
 
     @NotNull
+    public ViewContainer getContainer() {
+        ViewContainer container = this.getParent().getContainer();
+        Check.notNull(container, "container");
+        return container;
+    }
+
+    @NotNull
     public Map<String, Viewer> getIndexedViewers() {
         Map<String, Viewer> indexedViewers = this.getParent().getIndexedViewers();
         Check.notNull(indexedViewers, "indexedViewers");
         return indexedViewers;
-    }
-
-    @NotNull
-    public String getTitle() {
-        String title = this.getParent().getTitle();
-        Check.notNull(title, "title");
-        return title;
     }
 
     @NotNull
@@ -101,16 +108,25 @@ public abstract class SlotContext extends PlatformContext implements IFSlotConte
         this.getParent().updateComponent(component, force);
     }
 
-    public void performClickInComponent(@NotNull Component component, @NotNull Viewer viewer, @NotNull ViewContainer clickedContainer, @NotNull Object platformEvent, int clickedSlot, boolean combined) {
+    public void performClickInComponent(@NotNull Component component, @NotNull Viewer viewer,
+        @NotNull ViewContainer clickedContainer, @NotNull Object platformEvent, int clickedSlot, boolean combined) {
         Check.notNull(component, "component");
         Check.notNull(viewer, "viewer");
         Check.notNull(clickedContainer, "clickedContainer");
         Check.notNull(platformEvent, "platformEvent");
-        this.getParent().performClickInComponent(component, viewer, clickedContainer, platformEvent, clickedSlot, combined);
+        this.getParent()
+            .performClickInComponent(component, viewer, clickedContainer, platformEvent, clickedSlot, combined);
     }
 
     public void update() {
         this.getParent().update();
+    }
+
+    @NotNull
+    public StateValue getUninitializedStateValue(long stateId) {
+        StateValue uninitializedStateValue = this.getParent().getUninitializedStateValue(stateId);
+        Check.notNull(uninitializedStateValue, "uninitializedStateValue");
+        return uninitializedStateValue;
     }
 
     @NotNull
@@ -126,13 +142,6 @@ public abstract class SlotContext extends PlatformContext implements IFSlotConte
         StateValue stateValue = this.getParent().getInternalStateValue(state);
         Check.notNull(stateValue, "stateValue");
         return stateValue;
-    }
-
-    @NotNull
-    public StateValue getUninitializedStateValue(long stateId) {
-        StateValue uninitializedStateValue = this.getParent().getUninitializedStateValue(stateId);
-        Check.notNull(uninitializedStateValue, "uninitializedStateValue");
-        return uninitializedStateValue;
     }
 
     public void initializeState(long id, @NotNull StateValue value) {
@@ -168,18 +177,6 @@ public abstract class SlotContext extends PlatformContext implements IFSlotConte
     }
 
     @NotNull
-    public ViewContainer getContainer() {
-        ViewContainer container = this.getParent().getContainer();
-        Check.notNull(container, "container");
-        return container;
-    }
-
-    @NotNull
-    public View getRoot() {
-        return this.getParent().getRoot();
-    }
-
-    @NotNull
     public Object getInitialData() {
         Object var10000 = this.getParent().getInitialData();
         Check.notNull(var10000, "getInitialData(...)");
@@ -192,19 +189,15 @@ public abstract class SlotContext extends PlatformContext implements IFSlotConte
     }
 
     @NotNull
-    public List<Player> getAllPlayers() {
-        return this.getParent().getAllPlayers();
+    public View getRoot() {
+        return this.getParent().getRoot();
     }
 
-    public void updateTitleForPlayer(@NotNull net.kyori.adventure.text.Component title, @NotNull Player player) {
+    @NotNull
+    public String getTitle() {
+        String title = this.getParent().getTitle();
         Check.notNull(title, "title");
-        Check.notNull(player, "player");
-        this.getParent().updateTitleForPlayer(title, player);
-    }
-
-    public void resetTitleForPlayer(@NotNull Player player) {
-        Check.notNull(player, "player");
-        this.getParent().resetTitleForPlayer(player);
+        return title;
     }
 
     public boolean isActive() {
@@ -221,6 +214,22 @@ public abstract class SlotContext extends PlatformContext implements IFSlotConte
 
     public void setEndless(boolean endless) {
         this.getParent().setEndless(endless);
+    }
+
+    @NotNull
+    public List<Player> getAllPlayers() {
+        return this.getParent().getAllPlayers();
+    }
+
+    public void updateTitleForPlayer(@NotNull net.kyori.adventure.text.Component title, @NotNull Player player) {
+        Check.notNull(title, "title");
+        Check.notNull(player, "player");
+        this.getParent().updateTitleForPlayer(title, player);
+    }
+
+    public void resetTitleForPlayer(@NotNull Player player) {
+        Check.notNull(player, "player");
+        this.getParent().resetTitleForPlayer(player);
     }
 
     public void back() {

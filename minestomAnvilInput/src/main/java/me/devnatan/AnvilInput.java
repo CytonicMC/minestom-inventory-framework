@@ -1,5 +1,7 @@
 package me.devnatan;
 
+import java.util.function.UnaryOperator;
+
 import me.devnatan.inventoryframework.IFDebug;
 import me.devnatan.inventoryframework.ViewConfig;
 import me.devnatan.inventoryframework.ViewConfigBuilder;
@@ -11,19 +13,12 @@ import me.devnatan.inventoryframework.state.StateValueFactory;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.UnaryOperator;
-
 public final class AnvilInput extends BaseMutableState<String> implements ViewConfig.Modifier {
 
     private static final AnvilInputConfig DEFAULT_CONFIG = new AnvilInputConfig();
 
     AnvilInput(long id, StateValueFactory valueFactory) {
         super(id, valueFactory);
-    }
-
-    @Override
-    public void apply(@NotNull ViewConfigBuilder config, @NotNull IFContext context) {
-        config.type(ViewType.ANVIL);
     }
 
     /**
@@ -66,8 +61,8 @@ public final class AnvilInput extends BaseMutableState<String> implements ViewCo
      * Creates a new AnvilInput instance with an input change handler.
      * <p>
      * <code>onInputChange</code> parameter can be used to transform the input provided by the player.
-     * Note that it's not called immediately, only when view is closed or the player interacts with
-     * the item placed at container's {@link ViewType#getResultSlots() first result slot}.
+     * Note that it's not called immediately, only when view is closed or the player interacts with the item placed at
+     * container's {@link ViewType#getResultSlots() first result slot}.
      * <p>
      * <b><i> This API is experimental and is not subject to the general compatibility guarantees
      * such API may be changed or may be removed completely in any further release. </i></b>
@@ -84,8 +79,8 @@ public final class AnvilInput extends BaseMutableState<String> implements ViewCo
      * Creates a new AnvilInput instance with an initial input and an input change handler.
      * <p>
      * <code>onInputChange</code> parameter can be used to transform the input provided by the player.
-     * Note that it's not called immediately, only when view is closed or the player interacts with
-     * the item placed at container's {@link ViewType#getResultSlots() first result slot}.
+     * Note that it's not called immediately, only when view is closed or the player interacts with the item placed at
+     * container's {@link ViewType#getResultSlots() first result slot}.
      * <p>
      * <b><i> This API is experimental and is not subject to the general compatibility guarantees
      * such API may be changed or may be removed completely in any further release. </i></b>
@@ -96,7 +91,7 @@ public final class AnvilInput extends BaseMutableState<String> implements ViewCo
      */
     @ApiStatus.Experimental
     public static AnvilInput createAnvilInput(
-            @NotNull String initialInput, @NotNull UnaryOperator<String> onInputChange) {
+        @NotNull String initialInput, @NotNull UnaryOperator<String> onInputChange) {
         return createAnvilInput(defaultConfig().initialInput(initialInput).onInputChange(onInputChange));
     }
 
@@ -115,5 +110,10 @@ public final class AnvilInput extends BaseMutableState<String> implements ViewCo
         final StateValueFactory factory = (host, state) -> new AnvilInputStateValue(state, config);
         IFDebug.debug("Created anvil input state with id %d", id);
         return new AnvilInput(id, factory);
+    }
+
+    @Override
+    public void apply(@NotNull ViewConfigBuilder config, @NotNull IFContext context) {
+        config.type(ViewType.ANVIL);
     }
 }

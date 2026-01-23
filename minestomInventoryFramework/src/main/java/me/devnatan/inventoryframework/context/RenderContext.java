@@ -1,7 +1,14 @@
 package me.devnatan.inventoryframework.context;
 
-import me.devnatan.inventoryframework.*;
-import me.devnatan.inventoryframework.component.MinestomItemComponentBuilder;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+
+import me.devnatan.inventoryframework.View;
+import me.devnatan.inventoryframework.ViewConfig;
+import me.devnatan.inventoryframework.ViewContainer;
+import me.devnatan.inventoryframework.Viewer;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 import net.minestom.server.item.ItemStack;
@@ -11,17 +18,21 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import net.cytonic.minestomInventoryFramework.MinestomViewContainer;
+import net.cytonic.minestomInventoryFramework.MinestomViewer;
+import net.cytonic.minestomInventoryFramework.component.MinestomItemComponentBuilder;
+import net.cytonic.minestomInventoryFramework.context.Context;
 
-public final class RenderContext extends PlatformRenderContext<MinestomItemComponentBuilder, Context> implements Context {
+public final class RenderContext extends PlatformRenderContext<MinestomItemComponentBuilder, Context> implements
+    Context {
+
     @NotNull
     private final Player player;
 
     @Internal
-    public RenderContext(@NotNull UUID id, @NotNull View root, @NotNull ViewConfig config, @Nullable ViewContainer container, @NotNull Map<String, Viewer> viewers, @NotNull Viewer subject, @Nullable Object initialData) {
+    public RenderContext(@NotNull UUID id, @NotNull View root, @NotNull ViewConfig config,
+        @Nullable ViewContainer container, @NotNull Map<String, Viewer> viewers, @NotNull Viewer subject,
+        @Nullable Object initialData) {
         super(id, root, config, container, viewers, subject, initialData);
         Check.notNull(id, "id");
         Check.notNull(root, "root");
@@ -35,11 +46,6 @@ public final class RenderContext extends PlatformRenderContext<MinestomItemCompo
     public Player getPlayer() {
         this.tryThrowDoNotWorkWithSharedContext("getAllPlayers");
         return this.player;
-    }
-
-    @NotNull
-    public View getRoot() {
-        return (View) root;
     }
 
     @NotNull
@@ -61,6 +67,16 @@ public final class RenderContext extends PlatformRenderContext<MinestomItemCompo
         Check.notNull(player, "player");
         Check.notNull(this.getContainer(), "container");
         ((MinestomViewContainer) getContainer()).changeTitle(Component.empty(), player);
+    }
+
+    @NotNull
+    public View getRoot() {
+        return (View) root;
+    }
+
+    @NotNull
+    public String toString() {
+        return "RenderContext{player=" + getPlayer() + "} " + super.toString();
     }
 
     @NotNull
@@ -105,6 +121,10 @@ public final class RenderContext extends PlatformRenderContext<MinestomItemCompo
         return new MinestomItemComponentBuilder(this);
     }
 
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), this.getPlayer());
+    }
+
     public boolean equals(@Nullable Object other) {
         if (this == other) {
             return true;
@@ -118,14 +138,5 @@ public final class RenderContext extends PlatformRenderContext<MinestomItemCompo
         } else {
             return false;
         }
-    }
-
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), this.getPlayer());
-    }
-
-    @NotNull
-    public String toString() {
-        return "RenderContext{player=" + getPlayer() + "} " + super.toString();
     }
 }

@@ -7,20 +7,17 @@ import java.util.function.UnaryOperator;
 
 import me.devnatan.inventoryframework.IFDebug;
 import me.devnatan.inventoryframework.IFViewFrame;
-import me.devnatan.inventoryframework.MinestomViewContainer;
 import me.devnatan.inventoryframework.PlatformView;
 import me.devnatan.inventoryframework.View;
 import me.devnatan.inventoryframework.ViewConfig;
 import me.devnatan.inventoryframework.ViewContainer;
 import me.devnatan.inventoryframework.ViewFrame;
 import me.devnatan.inventoryframework.ViewType;
-import me.devnatan.inventoryframework.context.CloseContext;
 import me.devnatan.inventoryframework.context.IFCloseContext;
 import me.devnatan.inventoryframework.context.IFContext;
 import me.devnatan.inventoryframework.context.IFOpenContext;
 import me.devnatan.inventoryframework.context.IFSlotClickContext;
 import me.devnatan.inventoryframework.context.OpenContext;
-import me.devnatan.inventoryframework.context.SlotClickContext;
 import me.devnatan.inventoryframework.feature.Feature;
 import me.devnatan.inventoryframework.pipeline.PipelineInterceptor;
 import me.devnatan.inventoryframework.pipeline.StandardPipelinePhases;
@@ -37,6 +34,10 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import org.jetbrains.annotations.NotNull;
 
+import net.cytonic.minestomInventoryFramework.MinestomViewContainer;
+import net.cytonic.minestomInventoryFramework.context.CloseContext;
+import net.cytonic.minestomInventoryFramework.context.SlotClickContext;
+
 import static java.util.Objects.requireNonNull;
 import static me.devnatan.AnvilInput.defaultConfig;
 import static me.devnatan.inventoryframework.IFViewFrame.FRAME_REGISTERED;
@@ -44,15 +45,13 @@ import static me.devnatan.inventoryframework.IFViewFrame.FRAME_REGISTERED;
 @SuppressWarnings({"rawtypes", "unchecked", "unused"})
 public final class AnvilInputFeature implements Feature<AnvilInputConfig, Void, ViewFrame> {
 
-    private static final int INGREDIENT_SLOT = 0;
-
     /**
      * Instance of the Anvil Input feature.
      *
      * @see <a href="https://github.com/DevNatan/inventory-framework/wiki/anvil-input">Anvil Input on Wiki</a>
      */
     public static final Feature<AnvilInputConfig, Void, ViewFrame> AnvilInput = new AnvilInputFeature();
-
+    private static final int INGREDIENT_SLOT = 0;
     private AnvilInputConfig config;
     private PipelineInterceptor frameInterceptor;
 
@@ -145,6 +144,7 @@ public final class AnvilInputFeature implements Feature<AnvilInputConfig, Void, 
             }
         });
     }
+
     private void handleOpen(PlatformView view) {
         view.getPipeline().intercept(StandardPipelinePhases.OPEN, (pipeline, subject) -> {
             if (!(subject instanceof IFOpenContext)) return;
@@ -157,8 +157,10 @@ public final class AnvilInputFeature implements Feature<AnvilInputConfig, Void, 
 
             final String globalInitialInput = config.initialInput;
 
-            final Inventory inventory = openInventory(context.getPlayer(), context.getConfig().getTitle(), globalInitialInput);
-            final ViewContainer container = new MinestomViewContainer(inventory, context.isShared(), ViewType.ANVIL, true);
+            final Inventory inventory = openInventory(context.getPlayer(), context.getConfig().getTitle(),
+                globalInitialInput);
+            final ViewContainer container = new MinestomViewContainer(inventory, context.isShared(), ViewType.ANVIL,
+                true);
             context.setContainer(container);
 
             context.getPlayer().scheduler().scheduleNextTick(() -> {

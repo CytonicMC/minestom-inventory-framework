@@ -1,10 +1,19 @@
 package me.devnatan.inventoryframework;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.UnaryOperator;
+import java.util.logging.Logger;
+
 import me.devnatan.inventoryframework.context.EndlessContextInfo;
 import me.devnatan.inventoryframework.feature.DefaultFeatureInstaller;
 import me.devnatan.inventoryframework.feature.Feature;
 import me.devnatan.inventoryframework.feature.FeatureInstaller;
-import me.devnatan.inventoryframework.internal.MinestomElementFactory;
 import me.devnatan.inventoryframework.internal.PlatformUtils;
 import net.minestom.server.entity.Player;
 import net.minestom.server.utils.validate.Check;
@@ -14,11 +23,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.*;
-import java.util.function.UnaryOperator;
-import java.util.logging.Logger;
+import net.cytonic.minestomInventoryFramework.IFInventoryListener;
+import net.cytonic.minestomInventoryFramework.internal.MinestomElementFactory;
 
 public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
+
     @NotNull
     private static final Logger LOGGER;
 
@@ -61,7 +70,8 @@ public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
 
     @Experimental
     @NotNull
-    public String open(@NotNull Class<? extends View> viewClass, @NotNull Collection<Player> players, @Nullable Object initialData) {
+    public String open(@NotNull Class<? extends View> viewClass, @NotNull Collection<Player> players,
+        @Nullable Object initialData) {
         Check.notNull(viewClass, "viewClass");
         Check.notNull(players, "players");
         Map<String, Player> map = new HashMap<>();
@@ -75,7 +85,8 @@ public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
     }
 
     @Experimental
-    public void openActive(@NotNull Class<? extends View> viewClass, @NotNull String contextId, @NotNull Player player) {
+    public void openActive(@NotNull Class<? extends View> viewClass, @NotNull String contextId,
+        @NotNull Player player) {
         Check.notNull(viewClass, "viewClass");
         Check.notNull(contextId, "contextId");
         Check.notNull(player, "player");
@@ -83,7 +94,8 @@ public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
     }
 
     @Experimental
-    public void openActive(@NotNull Class<? extends View> viewClass, @NotNull String contextId, @NotNull Player player, @Nullable Object initialData) {
+    public void openActive(@NotNull Class<? extends View> viewClass, @NotNull String contextId, @NotNull Player player,
+        @Nullable Object initialData) {
         Check.notNull(viewClass, "viewClass");
         Check.notNull(contextId, "contextId");
         Check.notNull(player, "player");
@@ -98,7 +110,8 @@ public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
     }
 
     @Experimental
-    public void openEndless(@NotNull EndlessContextInfo endlessContextInfo, @NotNull Player player, @Nullable Object initialData) {
+    public void openEndless(@NotNull EndlessContextInfo endlessContextInfo, @NotNull Player player,
+        @Nullable Object initialData) {
         Check.notNull(endlessContextInfo, "endlessContextInfo");
         Check.notNull(player, "player");
         //noinspection unchecked
@@ -124,7 +137,8 @@ public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
         if (!this.isRegistered()) return;
         this.setRegistered(false);
 
-        for (Iterator<View> iterator = this.registeredViews.values().iterator(); iterator.hasNext(); iterator.remove()) {
+        for (Iterator<View> iterator = this.registeredViews.values().iterator(); iterator.hasNext();
+            iterator.remove()) {
             View view = iterator.next();
 
             try {
@@ -152,11 +166,11 @@ public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
             } catch (RuntimeException exception) {
                 view.setInitialized(false);
                 LOGGER.severe(
-                        String.format(
-                                "An error occurred while enabling view %s: %s",
-                                view.getClass().getName(),
-                                exception
-                        )
+                    String.format(
+                        "An error occurred while enabling view %s: %s",
+                        view.getClass().getName(),
+                        exception
+                    )
                 );
                 //noinspection CallToPrintStackTrace
                 exception.printStackTrace();
@@ -173,8 +187,8 @@ public final class ViewFrame extends IFViewFrame<ViewFrame, View> {
 
     @NotNull
     public <C, R> ViewFrame install(
-            Feature<C, R, ViewFrame> feature,
-            UnaryOperator<C> configure
+        Feature<C, R, ViewFrame> feature,
+        UnaryOperator<C> configure
     ) {
         featureInstaller.install(feature, configure);
         IFDebug.debug("Feature %s installed", feature.name());

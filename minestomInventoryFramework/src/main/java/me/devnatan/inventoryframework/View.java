@@ -1,24 +1,35 @@
 package me.devnatan.inventoryframework;
 
-import me.devnatan.inventoryframework.component.MinestomItemComponentBuilder;
-import me.devnatan.inventoryframework.context.*;
-import me.devnatan.inventoryframework.pipeline.*;
+import me.devnatan.inventoryframework.context.OpenContext;
+import me.devnatan.inventoryframework.context.RenderContext;
+import me.devnatan.inventoryframework.pipeline.Pipeline;
+import me.devnatan.inventoryframework.pipeline.StandardPipelinePhases;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.entity.Player;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+import net.cytonic.minestomInventoryFramework.component.MinestomItemComponentBuilder;
+import net.cytonic.minestomInventoryFramework.context.CloseContext;
+import net.cytonic.minestomInventoryFramework.context.Context;
+import net.cytonic.minestomInventoryFramework.context.SlotClickContext;
+import net.cytonic.minestomInventoryFramework.pipeline.CancelledCloseInterceptor;
+import net.cytonic.minestomInventoryFramework.pipeline.GlobalClickInterceptor;
+import net.cytonic.minestomInventoryFramework.pipeline.ItemClickInterceptor;
+import net.cytonic.minestomInventoryFramework.pipeline.ItemCloseOnClickInterceptor;
+
 @ApiStatus.OverrideOnly
 public class View extends PlatformView<
-        ViewFrame,
-        Player,
-        MinestomItemComponentBuilder,
-        Context,
-        OpenContext,
-        CloseContext,
-        RenderContext,
-        SlotClickContext> {
+    ViewFrame,
+    Player,
+    MinestomItemComponentBuilder,
+    Context,
+    OpenContext,
+    CloseContext,
+    RenderContext,
+    SlotClickContext> {
+
     @Override
     public void registerPlatformInterceptors() {
         Pipeline<VirtualView> pipeline = getPipeline();

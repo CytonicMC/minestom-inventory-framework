@@ -1,6 +1,15 @@
 package me.devnatan.inventoryframework.context;
 
-import me.devnatan.inventoryframework.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+
+import me.devnatan.inventoryframework.View;
+import me.devnatan.inventoryframework.ViewConfig;
+import me.devnatan.inventoryframework.ViewConfigBuilder;
+import me.devnatan.inventoryframework.ViewContainer;
+import me.devnatan.inventoryframework.Viewer;
 import net.kyori.adventure.text.Component;
 import net.minestom.server.entity.Player;
 import net.minestom.server.utils.validate.Check;
@@ -8,12 +17,11 @@ import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
+import net.cytonic.minestomInventoryFramework.MinestomViewer;
+import net.cytonic.minestomInventoryFramework.context.Context;
 
 public final class OpenContext extends PlatformConfinedContext implements IFOpenContext, Context {
+
     @NotNull
     private final View root;
     @Nullable
@@ -35,7 +43,8 @@ public final class OpenContext extends PlatformConfinedContext implements IFOpen
     private boolean cancelled;
 
     @Internal
-    public OpenContext(@NotNull View root, @Nullable Viewer subject, @NotNull Map<String, Viewer> viewers, @Nullable Object initialData) {
+    public OpenContext(@NotNull View root, @Nullable Viewer subject, @NotNull Map<String, Viewer> viewers,
+        @Nullable Object initialData) {
         Check.notNull(root, "root");
         Check.notNull(viewers, "viewers");
         this.root = root;
@@ -77,6 +86,16 @@ public final class OpenContext extends PlatformConfinedContext implements IFOpen
         }
     }
 
+    @Nullable
+    public CompletableFuture<Void> getAsyncOpenJob() {
+        return this.waitTask;
+    }
+
+    public void waitUntil(@NotNull CompletableFuture<Void> task) {
+        Check.notNull(task, "task");
+        this.waitTask = task;
+    }
+
     public boolean isCancelled() {
         return this.cancelled;
     }
@@ -85,9 +104,30 @@ public final class OpenContext extends PlatformConfinedContext implements IFOpen
         this.cancelled = cancelled;
     }
 
+    @NotNull
+    public ViewConfigBuilder modifyConfig() {
+        if (this.inheritedConfigBuilder == null) this.inheritedConfigBuilder = new ViewConfigBuilder();
+
+        Check.notNull(inheritedConfigBuilder, "inheritedConfigBuilder");
+        return inheritedConfigBuilder;
+    }
+
     @Nullable
-    public CompletableFuture<Void> getAsyncOpenJob() {
-        return this.waitTask;
+    public ViewConfig getModifiedConfig() {
+        if (this.inheritedConfigBuilder == null) return null;
+        ViewConfigBuilder configBuilder = this.inheritedConfigBuilder;
+        Check.notNull(configBuilder, "configBuilder");
+        return configBuilder.build().merge(this.getRoot().getConfig());
+    }
+
+    @Nullable
+    public ViewContainer getContainer() {
+        return this.container;
+    }
+
+    public void setContainer(@NotNull ViewContainer container) {
+        Check.notNull(container, "container");
+        this.container = container;
     }
 
     @NotNull
@@ -105,20 +145,6 @@ public final class OpenContext extends PlatformConfinedContext implements IFOpen
         return this.id;
     }
 
-    @Nullable
-    public Object getInitialData() {
-        return this.initialData;
-    }
-
-    public void setInitialData(@Nullable Object initialData) {
-        this.initialData = initialData;
-    }
-
-    public void waitUntil(@NotNull CompletableFuture<Void> task) {
-        Check.notNull(task, "task");
-        this.waitTask = task;
-    }
-
     @NotNull
     public ViewConfig getConfig() {
         if (inheritedConfigBuilder == null) {
@@ -129,34 +155,17 @@ public final class OpenContext extends PlatformConfinedContext implements IFOpen
     }
 
     @Nullable
-    public ViewConfig getModifiedConfig() {
-        if (this.inheritedConfigBuilder == null) return null;
-        ViewConfigBuilder configBuilder = this.inheritedConfigBuilder;
-        Check.notNull(configBuilder, "configBuilder");
-        return configBuilder.build().merge(this.getRoot().getConfig());
+    public Object getInitialData() {
+        return this.initialData;
     }
 
-    @NotNull
-    public ViewConfigBuilder modifyConfig() {
-        if (this.inheritedConfigBuilder == null) this.inheritedConfigBuilder = new ViewConfigBuilder();
-
-        Check.notNull(inheritedConfigBuilder, "inheritedConfigBuilder");
-        return inheritedConfigBuilder;
+    public void setInitialData(@Nullable Object initialData) {
+        this.initialData = initialData;
     }
 
     @Nullable
     public Viewer getViewer() {
         this.tryThrowDoNotWorkWithSharedContext("getViewer");
         return this.subject;
-    }
-
-    @Nullable
-    public ViewContainer getContainer() {
-        return this.container;
-    }
-
-    public void setContainer(@NotNull ViewContainer container) {
-        Check.notNull(container, "container");
-        this.container = container;
     }
 }

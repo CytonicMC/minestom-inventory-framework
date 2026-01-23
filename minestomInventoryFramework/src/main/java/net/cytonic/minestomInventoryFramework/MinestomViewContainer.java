@@ -1,5 +1,10 @@
-package me.devnatan.inventoryframework;
+package net.cytonic.minestomInventoryFramework;
 
+import java.util.Objects;
+
+import me.devnatan.inventoryframework.ViewContainer;
+import me.devnatan.inventoryframework.ViewType;
+import me.devnatan.inventoryframework.Viewer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import net.minestom.server.entity.Player;
@@ -11,22 +16,20 @@ import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
 public record MinestomViewContainer(@NotNull Inventory inventory, boolean isShared, @NotNull ViewType type,
                                     boolean proxied) implements ViewContainer {
+
     public MinestomViewContainer {
         Check.notNull(inventory, "inventory");
         Check.notNull(type, "type");
     }
 
-    public boolean isProxied() {
-        return this.proxied;
-    }
-
     @NotNull
     public String getTitle() {
-        boolean diffTitle = inventory.getViewers().stream().map(Player::getOpenInventory).filter(inv -> inv instanceof Inventory).map(inv -> (Inventory) inv).map(inv -> PlainTextComponentSerializer.plainText().serialize(inv.getTitle())).distinct().anyMatch(title -> true);
+        boolean diffTitle = inventory.getViewers().stream().map(Player::getOpenInventory)
+            .filter(inv -> inv instanceof Inventory).map(inv -> (Inventory) inv)
+            .map(inv -> PlainTextComponentSerializer.plainText().serialize(inv.getTitle())).distinct()
+            .anyMatch(title -> true);
         if (diffTitle && this.isShared) {
             throw new IllegalStateException("Cannot get unique title of shared inventory");
         }
@@ -42,7 +45,8 @@ public record MinestomViewContainer(@NotNull Inventory inventory, boolean isShar
         Check.notNull(viewer, "viewer");
         MinestomViewer minestomViewer = (MinestomViewer) viewer;
         if (minestomViewer.getPlayer().getOpenInventory() instanceof Inventory) {
-            return PlainTextComponentSerializer.plainText().serialize(((Inventory) minestomViewer.getPlayer().getOpenInventory()).getTitle());
+            return PlainTextComponentSerializer.plainText()
+                .serialize(((Inventory) minestomViewer.getPlayer().getOpenInventory()).getTitle());
         }
         return "";
     }
@@ -52,12 +56,23 @@ public record MinestomViewContainer(@NotNull Inventory inventory, boolean isShar
         return this.type;
     }
 
-    public int getRowsCount() {
-        return this.getSize() / this.getColumnsCount();
+    public int getFirstSlot() {
+        return 0;
     }
 
-    public int getColumnsCount() {
-        return this.type.getColumns();
+    public int getLastSlot() {
+        int[] resultSlots = this.getType().getResultSlots();
+        int lastSlot = getSlotsCount();
+        if (resultSlots != null) {
+            for (int resultSlot : resultSlots) {
+                if (resultSlot == lastSlot) lastSlot--;
+            }
+        }
+        return lastSlot;
+    }
+
+    public boolean hasItem(int slot) {
+        return !this.inventory.getItemStack(slot).isAir();
     }
 
     public void renderItem(int slot, @NotNull Object item) {
@@ -85,17 +100,6 @@ public record MinestomViewContainer(@NotNull Inventory inventory, boolean isShar
         return item == null || item instanceof ItemStack;
     }
 
-    private void requireSupportedItem(Object item) {
-        if (!this.isSupportedItem(item)) {
-            Check.notNull(item, "item");
-            throw new IllegalStateException("Unsupported item type: " + item.getClass().getName());
-        }
-    }
-
-    public boolean hasItem(int slot) {
-        return !this.inventory.getItemStack(slot).isAir();
-    }
-
     public int getSize() {
         return this.inventory.getSize();
     }
@@ -104,41 +108,12 @@ public record MinestomViewContainer(@NotNull Inventory inventory, boolean isShar
         return this.getSize() - 1;
     }
 
-    public int getFirstSlot() {
-        return 0;
+    public int getRowsCount() {
+        return this.getSize() / this.getColumnsCount();
     }
 
-    public int getLastSlot() {
-        int[] resultSlots = this.getType().getResultSlots();
-        int lastSlot = getSlotsCount();
-        if (resultSlots != null) {
-            for (int resultSlot : resultSlots) {
-                if (resultSlot == lastSlot) lastSlot--;
-            }
-        }
-        return lastSlot;
-    }
-
-    public void changeTitle(@Nullable String title, @NotNull Viewer target) {
-        MinestomViewer minestomViewer = (MinestomViewer) target;
-        if (title == null) {
-            changeTitle(Component.empty(), minestomViewer.getPlayer());
-        }
-    }
-
-    public void changeTitle(@NotNull Component title, @NotNull Player target) {
-        Check.notNull(title, "title");
-        Check.notNull(target, "target");
-        if (target.getOpenInventory() instanceof Inventory openInventory) {
-            if (openInventory.getInventoryType() == InventoryType.CRAFTING || openInventory.getInventoryType() == InventoryType.CRAFTER_3X3) {
-                return;
-            }
-            openInventory.setTitle(title);
-        }
-    }
-
-    public boolean isEntityContainer() {
-        return false;
+    public int getColumnsCount() {
+        return this.type.getColumns();
     }
 
     public void open(@NotNull Viewer viewer) {
@@ -155,12 +130,56 @@ public record MinestomViewContainer(@NotNull Inventory inventory, boolean isShar
         viewer.close();
     }
 
+    @Override
+    public void changeTitle(@Nullable Object title, @NotNull Viewer target) {
+        if (title instanceof Component component) {
+            changeTitle(component, target);
+        } else {
+            changeTitle((String) title, target);
+        }
+    }
+
+    public boolean isEntityContainer() {
+        return false;
+    }
+
+    public boolean isProxied() {
+        return this.proxied;
+    }
+
+    private void requireSupportedItem(Object item) {
+        if (!this.isSupportedItem(item)) {
+            Check.notNull(item, "item");
+            throw new IllegalStateException("Unsupported item type: " + item.getClass().getName());
+        }
+    }
+
+    public void changeTitle(@Nullable String title, @NotNull Viewer target) {
+        MinestomViewer minestomViewer = (MinestomViewer) target;
+        if (title == null) {
+            changeTitle(Component.empty(), minestomViewer.getPlayer());
+        }
+    }
+
+    public void changeTitle(@NotNull Component title, @NotNull Player target) {
+        Check.notNull(title, "title");
+        Check.notNull(target, "target");
+        if (target.getOpenInventory() instanceof Inventory openInventory) {
+            if (openInventory.getInventoryType() == InventoryType.CRAFTING
+                || openInventory.getInventoryType() == InventoryType.CRAFTER_3X3) {
+                return;
+            }
+            openInventory.setTitle(title);
+        }
+    }
+
     public boolean equals(@Nullable Object other) {
         if (this == other) {
             return true;
         } else if (other != null && Objects.equals(this.getClass(), other.getClass())) {
             MinestomViewContainer that = (MinestomViewContainer) other;
-            return this.isShared == that.isShared && Objects.equals(this.inventory, that.inventory) && Objects.equals(this.getType(), that.getType());
+            return this.isShared == that.isShared && Objects.equals(this.inventory, that.inventory) && Objects.equals(
+                this.getType(), that.getType());
         } else {
             return false;
         }
@@ -172,6 +191,7 @@ public record MinestomViewContainer(@NotNull Inventory inventory, boolean isShar
 
     @NotNull
     public String toString() {
-        return "MinestomViewContainer{inventory=" + this.inventory + ", shared=" + this.isShared + ", type=" + this.type + "}";
+        return "MinestomViewContainer{inventory=" + this.inventory + ", shared=" + this.isShared + ", type=" + this.type
+            + "}";
     }
 }

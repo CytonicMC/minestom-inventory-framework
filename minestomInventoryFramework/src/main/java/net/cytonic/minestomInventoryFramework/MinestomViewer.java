@@ -1,5 +1,13 @@
-package me.devnatan.inventoryframework;
+package net.cytonic.minestomInventoryFramework;
 
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.Objects;
+
+import me.devnatan.inventoryframework.ViewConfig;
+import me.devnatan.inventoryframework.ViewContainer;
+import me.devnatan.inventoryframework.ViewType;
+import me.devnatan.inventoryframework.Viewer;
 import me.devnatan.inventoryframework.context.IFRenderContext;
 import net.minestom.server.entity.Player;
 import net.minestom.server.inventory.AbstractInventory;
@@ -8,11 +16,8 @@ import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.Objects;
-
 public final class MinestomViewer implements Viewer {
+
     @NotNull
     private final Player player;
     @NotNull
@@ -34,32 +39,6 @@ public final class MinestomViewer implements Viewer {
     @NotNull
     public Player getPlayer() {
         return this.player;
-    }
-
-    @NotNull
-    public IFRenderContext getCurrentContext() {
-        if (this.isSwitching()) {
-            IFRenderContext renderContext;
-            renderContext = this.getPreviousContext();
-            if (renderContext == null) {
-                throw new IllegalStateException("Previous context cannot be null when switching");
-            }
-            return renderContext;
-        } else {
-            return this.getActiveContext();
-        }
-
-    }
-
-    @NotNull
-    public IFRenderContext getActiveContext() {
-        Check.notNull(activeContext, "activeContext");
-        return activeContext;
-    }
-
-    public void setActiveContext(@NotNull IFRenderContext context) {
-        Check.notNull(context, "context");
-        this.activeContext = context;
     }
 
     @NotNull
@@ -90,6 +69,32 @@ public final class MinestomViewer implements Viewer {
 
         Check.notNull(selfContainer, "container");
         return selfContainer;
+    }
+
+    @NotNull
+    public IFRenderContext getActiveContext() {
+        Check.notNull(activeContext, "activeContext");
+        return activeContext;
+    }
+
+    @NotNull
+    public IFRenderContext getCurrentContext() {
+        if (this.isSwitching()) {
+            IFRenderContext renderContext;
+            renderContext = this.getPreviousContext();
+            if (renderContext == null) {
+                throw new IllegalStateException("Previous context cannot be null when switching");
+            }
+            return renderContext;
+        } else {
+            return this.getActiveContext();
+        }
+
+    }
+
+    public void setActiveContext(@NotNull IFRenderContext context) {
+        Check.notNull(context, "context");
+        this.activeContext = context;
     }
 
     public long getLastInteractionInMillis() {
@@ -137,6 +142,10 @@ public final class MinestomViewer implements Viewer {
         return this.player;
     }
 
+    public int hashCode() {
+        return this.player.hashCode();
+    }
+
     public boolean equals(@Nullable Object o) {
         if (this == o) {
             return true;
@@ -148,12 +157,9 @@ public final class MinestomViewer implements Viewer {
         }
     }
 
-    public int hashCode() {
-        return this.player.hashCode();
-    }
-
     @NotNull
     public String toString() {
-        return "MinestomViewer{player=" + this.player + ", selfContainer=" + this.selfContainer + ", lastInteractionInMillis=" + this.lastInteractionInMillis + ", isSwitching=" + this.switching + "}";
+        return "MinestomViewer{player=" + this.player + ", selfContainer=" + this.selfContainer
+            + ", lastInteractionInMillis=" + this.lastInteractionInMillis + ", isSwitching=" + this.switching + "}";
     }
 }

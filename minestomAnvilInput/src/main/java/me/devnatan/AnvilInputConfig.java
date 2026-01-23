@@ -1,9 +1,9 @@
 package me.devnatan;
 
+import java.util.function.UnaryOperator;
+
 import me.devnatan.inventoryframework.ViewType;
 import org.jetbrains.annotations.Contract;
-
-import java.util.function.UnaryOperator;
 
 public class AnvilInputConfig {
 
@@ -11,7 +11,8 @@ public class AnvilInputConfig {
     boolean closeOnSelect;
     UnaryOperator<String> inputChangeHandler;
 
-    AnvilInputConfig() {}
+    AnvilInputConfig() {
+    }
 
     /**
      * Sets the initial anvil text input value.
@@ -26,8 +27,8 @@ public class AnvilInputConfig {
     }
 
     /**
-     * Configures the view to close immediately when the player interacts with the item placed
-     * at container's {@link ViewType#getResultSlots() first result slot}.
+     * Configures the view to close immediately when the player interacts with the item placed at container's
+     * {@link ViewType#getResultSlots() first result slot}.
      *
      * @return This anvil input feature config.
      */
@@ -40,8 +41,8 @@ public class AnvilInputConfig {
     /**
      * Setups a handler that can be used to transform the input provided by the player.
      * <p>
-     * Note that it's not called immediately, only when view is closed or the player interacts with
-     * the item placed at container's {@link ViewType#getResultSlots() first result slot}.
+     * Note that it's not called immediately, only when view is closed or the player interacts with the item placed at
+     * container's {@link ViewType#getResultSlots() first result slot}.
      *
      * @param inputChangeHandler The input change handler.
      * @return This anvil input feature config.

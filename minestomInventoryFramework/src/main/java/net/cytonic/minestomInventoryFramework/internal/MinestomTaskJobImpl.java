@@ -1,5 +1,6 @@
-package me.devnatan.inventoryframework.internal;
+package net.cytonic.minestomInventoryFramework.internal;
 
+import me.devnatan.inventoryframework.internal.Job;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
@@ -8,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class MinestomTaskJobImpl implements Job {
+
     private final int intervalInTicks;
     @NotNull
     private final Runnable execution;

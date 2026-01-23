@@ -1,9 +1,12 @@
-package me.devnatan.inventoryframework.context;
+package net.cytonic.minestomInventoryFramework.context;
 
 
 import me.devnatan.inventoryframework.ViewContainer;
 import me.devnatan.inventoryframework.Viewer;
 import me.devnatan.inventoryframework.component.Component;
+import me.devnatan.inventoryframework.context.IFRenderContext;
+import me.devnatan.inventoryframework.context.IFSlotClickContext;
+import me.devnatan.inventoryframework.context.SlotContext;
 import net.minestom.server.entity.Player;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
 import net.minestom.server.inventory.PlayerInventory;
@@ -15,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public final class SlotClickContext extends SlotContext implements IFSlotClickContext {
+
     @NotNull
     private final Viewer whoClicked;
     @NotNull
@@ -27,7 +31,9 @@ public final class SlotClickContext extends SlotContext implements IFSlotClickCo
     private boolean cancelled;
 
     @Internal
-    public SlotClickContext(int slot, @NotNull IFRenderContext parent, @NotNull Viewer whoClicked, @NotNull ViewContainer clickedContainer, @Nullable Component clickedComponent, @NotNull InventoryPreClickEvent clickOrigin, boolean combined) {
+    public SlotClickContext(int slot, @NotNull IFRenderContext parent, @NotNull Viewer whoClicked,
+        @NotNull ViewContainer clickedContainer, @Nullable Component clickedComponent,
+        @NotNull InventoryPreClickEvent clickOrigin, boolean combined) {
         super(slot, parent);
         Check.notNull(parent, "parent");
         Check.notNull(whoClicked, "whoClicked");
@@ -66,14 +72,46 @@ public final class SlotClickContext extends SlotContext implements IFSlotClickCo
         return var10000;
     }
 
-    @Nullable
-    public Component getComponent() {
-        return this.clickedComponent;
-    }
-
     @NotNull
     public ViewContainer getClickedContainer() {
         return this.clickedContainer;
+    }
+
+    public int getClickedSlot() {
+        return this.clickOrigin.getSlot();
+    }
+
+    public boolean isLeftClick() {
+        return this.clickOrigin.getClick() instanceof Click.Left;
+    }
+
+    public boolean isRightClick() {
+        return this.clickOrigin.getClick() instanceof Click.Right;
+    }
+
+    public boolean isMiddleClick() {
+        return this.clickOrigin.getClick() instanceof Click.Middle;
+    }
+
+    public boolean isShiftClick() {
+        Click clickType = this.clickOrigin.getClick();
+        return clickType instanceof Click.LeftShift || clickType instanceof Click.RightShift;
+    }
+
+    public boolean isShiftLeftClick() {
+        return this.clickOrigin.getClick() instanceof Click.LeftShift;
+    }
+
+    public boolean isShiftRightClick() {
+        return this.clickOrigin.getClick() instanceof Click.RightShift;
+    }
+
+    public boolean isKeyboardClick() {
+        return this.clickOrigin.getClick() instanceof Click.HotbarSwap;
+    }
+
+    public boolean isOutsideClick() {
+        return this.clickOrigin.getSlot() < 0;
     }
 
     public boolean isCancelled() {
@@ -90,45 +128,17 @@ public final class SlotClickContext extends SlotContext implements IFSlotClickCo
         return this.clickOrigin;
     }
 
-    public int getClickedSlot() {
-        return this.clickOrigin.getSlot();
-    }
-
-    public boolean isLeftClick() {
-        return this.clickOrigin.getClick() instanceof Click.Left;
-    }
-
-    public boolean isRightClick() {
-        return this.clickOrigin.getClick() instanceof Click.Right;
-    }
-
-    public boolean isShiftLeftClick() {
-        return this.clickOrigin.getClick() instanceof Click.LeftShift;
-    }
-
-    public boolean isShiftRightClick() {
-        return this.clickOrigin.getClick() instanceof Click.RightShift;
-    }
-
-    public boolean isMiddleClick() {
-        return this.clickOrigin.getClick() instanceof Click.Middle;
-    }
-
-    public boolean isShiftClick() {
-        Click clickType = this.clickOrigin.getClick();
-        return clickType instanceof Click.LeftShift || clickType instanceof Click.RightShift;
-    }
-
-    public boolean isKeyboardClick() {
-        return this.clickOrigin.getClick() instanceof Click.HotbarSwap;
-    }
-
-    public boolean isOutsideClick() {
-        return this.clickOrigin.getSlot() < 0;
+    public boolean isCombined() {
+        return this.combined;
     }
 
     public boolean isOnEntityContainer() {
         return this.clickOrigin.getInventory() instanceof PlayerInventory;
+    }
+
+    @Nullable
+    public Component getComponent() {
+        return this.clickedComponent;
     }
 
     @NotNull
@@ -156,23 +166,24 @@ public final class SlotClickContext extends SlotContext implements IFSlotClickCo
         this.getParent().updateTitleForPlayer(title);
     }
 
-    public void resetTitleForPlayer() {
-        this.getParent().resetTitleForPlayer();
+    @Override
+    public void updateTitleForPlayer(@NotNull Object titleComponent) {
+        this.getParent().updateTitleForPlayer(titleComponent);
     }
 
-    public boolean isCombined() {
-        return this.combined;
+    public void resetTitleForPlayer() {
+        this.getParent().resetTitleForPlayer();
     }
 
     @Override
     public String toString() {
         return "SlotClickContext{" +
-                "whoClicked=" + whoClicked +
-                ", clickedContainer=" + clickedContainer +
-                ", clickedComponent=" + clickedComponent +
-                ", clickOrigin=" + clickOrigin +
-                ", combined=" + combined +
-                ", cancelled=" + cancelled +
-                '}';
+            "whoClicked=" + whoClicked +
+            ", clickedContainer=" + clickedContainer +
+            ", clickedComponent=" + clickedComponent +
+            ", clickOrigin=" + clickOrigin +
+            ", combined=" + combined +
+            ", cancelled=" + cancelled +
+            '}';
     }
 }

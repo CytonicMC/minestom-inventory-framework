@@ -1,15 +1,22 @@
-package me.devnatan.inventoryframework.context;
+package net.cytonic.minestomInventoryFramework.context;
 
-import me.devnatan.inventoryframework.MinestomViewer;
 import me.devnatan.inventoryframework.Viewer;
+import me.devnatan.inventoryframework.component.Component;
+import me.devnatan.inventoryframework.context.IFRenderContext;
+import me.devnatan.inventoryframework.context.IFSlotRenderContext;
+import me.devnatan.inventoryframework.context.SlotContext;
 import net.minestom.server.entity.Player;
 import net.minestom.server.item.ItemStack;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+
+import net.cytonic.minestomInventoryFramework.MinestomViewer;
 
 public final class SlotRenderContext extends SlotContext implements IFSlotRenderContext {
+
     @Nullable
     private final Viewer viewer;
     @NotNull
@@ -19,9 +26,12 @@ public final class SlotRenderContext extends SlotContext implements IFSlotRender
     private boolean cancelled;
     private boolean changed;
     private boolean forceUpdate;
+    @NotNull
+    private final Component component;
 
     @Internal
-    public SlotRenderContext(int slot, @NotNull IFRenderContext parent, @Nullable Viewer viewer) {
+    public SlotRenderContext(int slot, @NotNull IFRenderContext parent, @Nullable Viewer viewer,
+        @NotNull Component component) {
         super(slot, parent);
         Check.notNull(parent, "parent");
         this.viewer = viewer;
@@ -29,6 +39,8 @@ public final class SlotRenderContext extends SlotContext implements IFSlotRender
         this.player = ((MinestomViewer) viewer).getPlayer();
         Check.notNull(ItemStack.AIR, "AIR");
         this.item = ItemStack.AIR;
+        Check.notNull(component, "component");
+        this.component = component;
     }
 
     @NotNull
@@ -85,6 +97,11 @@ public final class SlotRenderContext extends SlotContext implements IFSlotRender
         return this.getContainer().isEntityContainer();
     }
 
+    @Override
+    public @NonNull Component getComponent() {
+        return component;
+    }
+
     @Nullable
     public Viewer getViewer() {
         return this.viewer;
@@ -108,6 +125,11 @@ public final class SlotRenderContext extends SlotContext implements IFSlotRender
     public void updateTitleForPlayer(@NotNull String title) {
         Check.notNull(title, "title");
         this.getParent().updateTitleForPlayer(title);
+    }
+
+    @Override
+    public void updateTitleForPlayer(@NotNull Object titleComponent) {
+        this.getParent().updateTitleForPlayer(titleComponent);
     }
 
     public void resetTitleForPlayer() {

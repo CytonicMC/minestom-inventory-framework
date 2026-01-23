@@ -1,9 +1,12 @@
-package me.devnatan.inventoryframework.pipeline;
+package net.cytonic.minestomInventoryFramework.pipeline;
 
 import me.devnatan.inventoryframework.VirtualView;
-import me.devnatan.inventoryframework.context.CloseContext;
+import me.devnatan.inventoryframework.pipeline.PipelineContext;
+import me.devnatan.inventoryframework.pipeline.PipelineInterceptor;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
+
+import net.cytonic.minestomInventoryFramework.context.CloseContext;
 
 public final class CancelledCloseInterceptor implements PipelineInterceptor<VirtualView> {
 
@@ -12,7 +15,8 @@ public final class CancelledCloseInterceptor implements PipelineInterceptor<Virt
         Check.notNull(subject, "subject");
         if (subject instanceof CloseContext) {
             if (((CloseContext) subject).isCancelled()) {
-                ((CloseContext) subject).getRoot().nextTick(() -> ((CloseContext) subject).getViewer().open(((CloseContext) subject).getContainer()));
+                ((CloseContext) subject).getRoot()
+                    .nextTick(() -> ((CloseContext) subject).getViewer().open(((CloseContext) subject).getContainer()));
             }
         }
     }

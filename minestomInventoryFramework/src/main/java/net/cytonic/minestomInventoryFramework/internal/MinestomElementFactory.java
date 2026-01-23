@@ -1,4 +1,4 @@
-package me.devnatan.inventoryframework.internal;
+package net.cytonic.minestomInventoryFramework.internal;
 
 import java.util.List;
 import java.util.Map;
@@ -7,8 +7,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import me.devnatan.inventoryframework.MinestomViewContainer;
-import me.devnatan.inventoryframework.MinestomViewer;
 import me.devnatan.inventoryframework.RootView;
 import me.devnatan.inventoryframework.View;
 import me.devnatan.inventoryframework.ViewConfig;
@@ -17,9 +15,6 @@ import me.devnatan.inventoryframework.ViewType;
 import me.devnatan.inventoryframework.Viewer;
 import me.devnatan.inventoryframework.VirtualView;
 import me.devnatan.inventoryframework.component.ComponentBuilder;
-import me.devnatan.inventoryframework.component.MinestomItemComponentBuilder;
-import me.devnatan.inventoryframework.context.CloseContext;
-import me.devnatan.inventoryframework.context.Context;
 import me.devnatan.inventoryframework.context.IFCloseContext;
 import me.devnatan.inventoryframework.context.IFContext;
 import me.devnatan.inventoryframework.context.IFOpenContext;
@@ -28,8 +23,8 @@ import me.devnatan.inventoryframework.context.IFSlotClickContext;
 import me.devnatan.inventoryframework.context.IFSlotRenderContext;
 import me.devnatan.inventoryframework.context.OpenContext;
 import me.devnatan.inventoryframework.context.RenderContext;
-import me.devnatan.inventoryframework.context.SlotClickContext;
-import me.devnatan.inventoryframework.context.SlotRenderContext;
+import me.devnatan.inventoryframework.internal.ElementFactory;
+import me.devnatan.inventoryframework.internal.Job;
 import me.devnatan.inventoryframework.logging.Logger;
 import me.devnatan.inventoryframework.logging.NoopLogger;
 import net.kyori.adventure.text.Component;
@@ -41,6 +36,14 @@ import net.minestom.server.inventory.InventoryType;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import net.cytonic.minestomInventoryFramework.MinestomViewContainer;
+import net.cytonic.minestomInventoryFramework.MinestomViewer;
+import net.cytonic.minestomInventoryFramework.component.MinestomItemComponentBuilder;
+import net.cytonic.minestomInventoryFramework.context.CloseContext;
+import net.cytonic.minestomInventoryFramework.context.Context;
+import net.cytonic.minestomInventoryFramework.context.SlotClickContext;
+import net.cytonic.minestomInventoryFramework.context.SlotRenderContext;
 
 public final class MinestomElementFactory extends ElementFactory {
 
@@ -82,6 +85,18 @@ public final class MinestomElementFactory extends ElementFactory {
             throw new IllegalStateException("Unsupported type: " + finalType);
         }
         return type;
+    }
+
+    @NotNull
+    public IFSlotRenderContext createSlotRenderContext(int slot, @NotNull IFRenderContext parent,
+        @Nullable Viewer viewer, me.devnatan.inventoryframework.component.Component component) {
+        Check.notNull(parent, "parent");
+        return new SlotRenderContext(slot, parent, viewer, component);
+    }
+
+    @NotNull
+    public Logger getLogger() {
+        return new NoopLogger();
     }
 
     @NotNull
@@ -142,7 +157,6 @@ public final class MinestomElementFactory extends ElementFactory {
             viewers.stream().collect(Collectors.toMap(Viewer::getId, Function.identity())), initialData);
     }
 
-
     @NotNull
     public IFRenderContext createRenderContext(@NotNull UUID id, @NotNull RootView root, @NotNull ViewConfig config,
         @Nullable ViewContainer container, @NotNull Map<String, Viewer> viewers, @NotNull Viewer subject,
@@ -170,13 +184,6 @@ public final class MinestomElementFactory extends ElementFactory {
     }
 
     @NotNull
-    public IFSlotRenderContext createSlotRenderContext(int slot, @NotNull IFRenderContext parent,
-        @Nullable Viewer viewer) {
-        Check.notNull(parent, "parent");
-        return new SlotRenderContext(slot, parent, viewer);
-    }
-
-    @NotNull
     public IFCloseContext createCloseContext(@NotNull Viewer viewer, @NotNull IFRenderContext parent,
         @NotNull Object origin) {
         Check.notNull(viewer, "viewer");
@@ -193,11 +200,6 @@ public final class MinestomElementFactory extends ElementFactory {
 
     public boolean worksInCurrentPlatform() {
         return true;
-    }
-
-    @NotNull
-    public Logger getLogger() {
-        return new NoopLogger();
     }
 
     @NotNull

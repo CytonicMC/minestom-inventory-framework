@@ -1,6 +1,17 @@
-package me.devnatan.inventoryframework.context;
+package net.cytonic.minestomInventoryFramework.context;
 
-import me.devnatan.inventoryframework.*;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import me.devnatan.inventoryframework.View;
+import me.devnatan.inventoryframework.ViewConfig;
+import me.devnatan.inventoryframework.ViewContainer;
+import me.devnatan.inventoryframework.Viewer;
+import me.devnatan.inventoryframework.context.IFCloseContext;
+import me.devnatan.inventoryframework.context.IFRenderContext;
+import me.devnatan.inventoryframework.context.PlatformConfinedContext;
+import me.devnatan.inventoryframework.context.RenderContext;
 import me.devnatan.inventoryframework.state.State;
 import me.devnatan.inventoryframework.state.StateValue;
 import me.devnatan.inventoryframework.state.StateWatcher;
@@ -13,11 +24,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import net.cytonic.minestomInventoryFramework.MinestomViewer;
 
 public final class CloseContext extends PlatformConfinedContext implements IFCloseContext, Context {
+
     @NotNull
     private final IFRenderContext parent;
     @NotNull
@@ -29,7 +39,8 @@ public final class CloseContext extends PlatformConfinedContext implements IFClo
     private boolean cancelled;
 
     @Internal
-    public CloseContext(@NotNull Viewer subject, @NotNull IFRenderContext parent, @NotNull InventoryCloseEvent closeOrigin) {
+    public CloseContext(@NotNull Viewer subject, @NotNull IFRenderContext parent,
+        @NotNull InventoryCloseEvent closeOrigin) {
         Check.notNull(subject, "subject");
         Check.notNull(parent, "parent");
         Check.notNull(closeOrigin, "closeOrigin");
@@ -37,11 +48,6 @@ public final class CloseContext extends PlatformConfinedContext implements IFClo
         this.subject = subject;
         this.player = ((MinestomViewer) subject).getPlayer();
         this.closeOrigin = closeOrigin;
-    }
-
-    @Override
-    public Object getPlatformEvent() {
-        return closeOrigin;
     }
 
     @NotNull
@@ -65,14 +71,6 @@ public final class CloseContext extends PlatformConfinedContext implements IFClo
         this.getParent().resetTitleForPlayer(player);
     }
 
-    public boolean isCancelled() {
-        return this.cancelled;
-    }
-
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
-    }
-
     @NotNull
     public Viewer getViewer() {
         return this.subject;
@@ -83,6 +81,26 @@ public final class CloseContext extends PlatformConfinedContext implements IFClo
         IFRenderContext renderContext = this.parent;
         Check.notNull(renderContext, "renderContext");
         return (RenderContext) renderContext;
+    }
+
+    public boolean isCancelled() {
+        return this.cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    @NotNull
+    public ViewContainer getContainer() {
+        ViewContainer viewContainer = this.getParent().getContainer();
+        Check.notNull(viewContainer, "viewContainer");
+        return viewContainer;
+    }
+
+    @Override
+    public Object getPlatformEvent() {
+        return closeOrigin;
     }
 
     @NotNull
@@ -100,18 +118,6 @@ public final class CloseContext extends PlatformConfinedContext implements IFClo
     }
 
     @NotNull
-    public ViewContainer getContainer() {
-        ViewContainer viewContainer = this.getParent().getContainer();
-        Check.notNull(viewContainer, "viewContainer");
-        return viewContainer;
-    }
-
-    @NotNull
-    public View getRoot() {
-        return this.getParent().getRoot();
-    }
-
-    @NotNull
     public Object getInitialData() {
         Object initialData = this.getParent().getInitialData();
         Check.notNull(initialData, "initialData");
@@ -123,20 +129,28 @@ public final class CloseContext extends PlatformConfinedContext implements IFClo
         this.getParent().setInitialData(initialData);
     }
 
+    @NotNull
+    public View getRoot() {
+        return this.getParent().getRoot();
+    }
+
+    @NotNull
+    public String toString() {
+        return "CloseContext{subject=" + this.subject + ", player=" + this.getPlayer() + ", parent=" + this.parent
+            + ", cancelled=" + this.cancelled + "} " + super.toString();
+    }
+
     @Nullable
     @UnmodifiableView
     public Map<Long, StateValue> getStateValues() {
         return this.getParent().getStateValues();
     }
 
-    public void initializeState(long id, @NotNull StateValue value) {
-        Check.notNull(value, "value");
-        this.getParent().initializeState(id, value);
-    }
-
-    public void watchState(long id, @NotNull StateWatcher listener) {
-        Check.notNull(listener, "listener");
-        this.getParent().watchState(id, listener);
+    @NotNull
+    public StateValue getUninitializedStateValue(long stateId) {
+        StateValue uninitializedStateValue = this.getParent().getUninitializedStateValue(stateId);
+        Check.notNull(uninitializedStateValue, "uninitializedStateValue");
+        return uninitializedStateValue;
     }
 
     @NotNull
@@ -154,11 +168,9 @@ public final class CloseContext extends PlatformConfinedContext implements IFClo
         return stateValue;
     }
 
-    @NotNull
-    public StateValue getUninitializedStateValue(long stateId) {
-        StateValue uninitializedStateValue = this.getParent().getUninitializedStateValue(stateId);
-        Check.notNull(uninitializedStateValue, "uninitializedStateValue");
-        return uninitializedStateValue;
+    public void initializeState(long id, @NotNull StateValue value) {
+        Check.notNull(value, "value");
+        this.getParent().initializeState(id, value);
     }
 
     public void updateState(@NotNull State state, @NotNull Object value) {
@@ -167,8 +179,8 @@ public final class CloseContext extends PlatformConfinedContext implements IFClo
         this.getParent().updateState(state, value);
     }
 
-    @NotNull
-    public String toString() {
-        return "CloseContext{subject=" + this.subject + ", player=" + this.getPlayer() + ", parent=" + this.parent + ", cancelled=" + this.cancelled + "} " + super.toString();
+    public void watchState(long id, @NotNull StateWatcher listener) {
+        Check.notNull(listener, "listener");
+        this.getParent().watchState(id, listener);
     }
 }

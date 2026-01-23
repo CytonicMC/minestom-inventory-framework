@@ -1,5 +1,12 @@
-package me.devnatan.inventoryframework;
+package net.cytonic.minestomInventoryFramework;
 
+import java.util.Objects;
+
+import me.devnatan.inventoryframework.IFDebug;
+import me.devnatan.inventoryframework.ViewConfig;
+import me.devnatan.inventoryframework.ViewContainer;
+import me.devnatan.inventoryframework.ViewFrame;
+import me.devnatan.inventoryframework.Viewer;
 import me.devnatan.inventoryframework.component.Component;
 import me.devnatan.inventoryframework.context.IFCloseContext;
 import me.devnatan.inventoryframework.context.IFContext;
@@ -18,9 +25,8 @@ import net.minestom.server.inventory.click.Click;
 import net.minestom.server.utils.validate.Check;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Objects;
-
 public final class IFInventoryListener {
+
     @NotNull
     private final ViewFrame viewFrame;
 
@@ -28,8 +34,10 @@ public final class IFInventoryListener {
         Check.notNull(viewFrame, "viewFrame");
         this.viewFrame = viewFrame;
         IFDebug.debug("Registering IF listener");
-        EventNode<@NotNull EntityEvent> node = EventNode.type("IF", EventFilter.ENTITY, (event, entity) -> entity instanceof Player && viewFrame.getViewer((Player) entity) != null)
-                .setPriority(10).addListener(InventoryPreClickEvent.class, this::onInventoryClick).addListener(InventoryCloseEvent.class, this::onInventoryClose);
+        EventNode<@NotNull EntityEvent> node = EventNode.type("IF", EventFilter.ENTITY,
+                (event, entity) -> entity instanceof Player && viewFrame.getViewer((Player) entity) != null)
+            .setPriority(10).addListener(InventoryPreClickEvent.class, this::onInventoryClick)
+            .addListener(InventoryCloseEvent.class, this::onInventoryClose);
         MinecraftServer.getGlobalEventHandler().addChild(node);
         IFDebug.debug("IF listener registered");
     }
@@ -59,20 +67,21 @@ public final class IFInventoryListener {
 
         IFRenderContext context = viewer.getActiveContext();
         Component clickedComponent = context
-                .getComponentsAt(event.getSlot())
-                .stream()
-                .filter(Component::isVisible)
-                .findFirst()
-                .orElse(null);
+            .getComponentsAt(event.getSlot())
+            .stream()
+            .filter(Component::isVisible)
+            .findFirst()
+            .orElse(null);
 
-        ViewContainer clickedContainer = event.getInventory() instanceof PlayerInventory ? viewer.getSelfContainer() : context.getContainer();
+        ViewContainer clickedContainer =
+            event.getInventory() instanceof PlayerInventory ? viewer.getSelfContainer() : context.getContainer();
         IFSlotClickContext clickContext = context.getRoot().getElementFactory().createSlotClickContext(
-                event.getSlot(),
-                viewer,
-                clickedContainer,
-                clickedComponent,
-                event,
-                false);
+            event.getSlot(),
+            viewer,
+            clickedContainer,
+            clickedComponent,
+            event,
+            false);
 
         context.getRoot().getPipeline().execute(StandardPipelinePhases.CLICK, clickContext);
     }
