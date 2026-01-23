@@ -1,8 +1,8 @@
 metadata.format.version = "1.1"
 
 [versions]
-minestom = "2025.10.31-1.21.10"
-platform = "3.5.5"
+minestom = "2026.01.08-1.21.11"
+platform = "3.7.1"
 
 [libraries]
 minestom = { module = "net.minestom:minestom", version.ref = "minestom" }
