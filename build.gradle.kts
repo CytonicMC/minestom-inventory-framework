@@ -4,7 +4,7 @@ plugins {
 }
 
 allprojects {
-    group = "me.devnatan"
+    group = "net.cytonic"
     version = "1.0-SNAPSHOT"
 
     apply(plugin = "java-library")
