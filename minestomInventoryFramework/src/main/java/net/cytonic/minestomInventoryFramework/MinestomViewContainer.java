@@ -130,20 +130,6 @@ public record MinestomViewContainer(@NotNull Inventory inventory, boolean isShar
         viewer.close();
     }
 
-    @Override
-    public void changeTitle(@Nullable Object title, @NotNull Viewer target) {
-        if (title instanceof Component component) {
-            changeTitle(component, target);
-        } else {
-            changeTitle((String) title, target);
-        }
-    }
-
-    public void changeTitle(@NotNull Component title, @NotNull Viewer target) {
-        MinestomViewer viewer = (MinestomViewer) target;
-        changeTitle(title, viewer.getPlayer());
-    }
-
     public boolean isEntityContainer() {
         return false;
     }
@@ -159,10 +145,18 @@ public record MinestomViewContainer(@NotNull Inventory inventory, boolean isShar
         }
     }
 
-    public void changeTitle(@Nullable String title, @NotNull Viewer target) {
-        MinestomViewer minestomViewer = (MinestomViewer) target;
+    @Override
+    public void changeTitle(@Nullable Object title, @NotNull Viewer target) {
+        Player player = ((MinestomViewer) target).getPlayer();
         if (title == null) {
-            changeTitle(Component.empty(), minestomViewer.getPlayer());
+            changeTitle(Component.empty(), player);
+            return;
+        }
+        if (title instanceof Component component) {
+            changeTitle(component, player);
+        } else {
+            Component component = Component.text((String) title);
+            changeTitle(component, player);
         }
     }
 
