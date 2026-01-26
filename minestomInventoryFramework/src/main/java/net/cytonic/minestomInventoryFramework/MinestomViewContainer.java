@@ -139,6 +139,11 @@ public record MinestomViewContainer(@NotNull Inventory inventory, boolean isShar
         }
     }
 
+    public void changeTitle(@NotNull Component title, @NotNull Viewer target) {
+        MinestomViewer viewer = (MinestomViewer) target;
+        changeTitle(title, viewer.getPlayer());
+    }
+
     public boolean isEntityContainer() {
         return false;
     }
